@@ -236,11 +236,17 @@ python scripts/count_records.py
 # 7. Run Database Referential & Invariant Integrity Audits
 python scripts/validate_ingestion.py
 
-# 8. Run Complete Automated Test Suite (47 Unit, Ingestion, Embedding & Retrieval Tests)
+# 8. Run Complete Automated Test Suite (54 Unit, Ingestion, Embedding, Retrieval & Index Benchmark Tests)
 pytest tests/ -v
+
+# 9. Execute Controlled Vector-Index Empirical Benchmark (Flat vs HNSW vs IVFFlat)
+python scripts/run_index_experiments.py --top-k 10 --iterations 3
 ```
 
 For detailed architectural specifications:
 - Data Ingestion & Sanitization: [`docs/data_ingestion.md`](file:///D:/HybridHealthcareVectorDB/docs/data_ingestion.md)
 - Document Chunking & Vector Storage: [`docs/embedding_pipeline.md`](file:///D:/HybridHealthcareVectorDB/docs/embedding_pipeline.md)
 - Ground-Truth Exact Retrieval Baseline: [`docs/exact_similarity_search.md`](file:///D:/HybridHealthcareVectorDB/docs/exact_similarity_search.md)
+- Controlled Vector-Index Benchmark (Flat vs HNSW vs IVFFlat): [`docs/vector_index_experiments.md`](file:///D:/HybridHealthcareVectorDB/docs/vector_index_experiments.md)
+- Experiment SQL Script: [`sql/09_vector_index_experiments.sql`](file:///D:/HybridHealthcareVectorDB/sql/09_vector_index_experiments.sql)
+
