@@ -63,6 +63,7 @@ data/synthetic/*
 results/*
 !results/.gitkeep
 !results/vector_index_benchmark.json
+!results/hybrid_query_benchmark.json
 
 # OS generated files
 Thumbs.db

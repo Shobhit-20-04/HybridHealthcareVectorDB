@@ -236,11 +236,17 @@ python scripts/count_records.py
 # 7. Run Database Referential & Invariant Integrity Audits
 python scripts/validate_ingestion.py
 
-# 8. Run Complete Automated Test Suite (54 Unit, Ingestion, Embedding, Retrieval & Index Benchmark Tests)
+# 8. Run Complete Automated Test Suite (63 Unit, Ingestion, Embedding, Retrieval, Benchmark & Hybrid Tests)
 pytest tests/ -v
 
 # 9. Execute Controlled Vector-Index Empirical Benchmark (Flat vs HNSW vs IVFFlat)
 python scripts/run_index_experiments.py --top-k 10 --iterations 3
+
+# 10. Execute Ad-Hoc Hybrid Relational–Vector Query (with Department, Age, Document Type Filters)
+python scripts/search_hybrid.py "shortness of breath and chest pain" --department Cardiology --document-type discharge_summary --min-age 40 --top-k 5 --explain
+
+# 11. Run Multi-Selectivity Controlled Hybrid Benchmark (Low, Moderate, High, Zero-Match Tiers)
+python scripts/run_hybrid_experiments.py --top-k 10 --iterations 3
 ```
 
 For detailed architectural specifications:
@@ -248,5 +254,7 @@ For detailed architectural specifications:
 - Document Chunking & Vector Storage: [`docs/embedding_pipeline.md`](file:///D:/HybridHealthcareVectorDB/docs/embedding_pipeline.md)
 - Ground-Truth Exact Retrieval Baseline: [`docs/exact_similarity_search.md`](file:///D:/HybridHealthcareVectorDB/docs/exact_similarity_search.md)
 - Controlled Vector-Index Benchmark (Flat vs HNSW vs IVFFlat): [`docs/vector_index_experiments.md`](file:///D:/HybridHealthcareVectorDB/docs/vector_index_experiments.md)
-- Experiment SQL Script: [`sql/09_vector_index_experiments.sql`](file:///D:/HybridHealthcareVectorDB/sql/09_vector_index_experiments.sql)
+- Hybrid Relational–Vector Query Execution & Selectivity: [`docs/hybrid_retrieval.md`](file:///D:/HybridHealthcareVectorDB/docs/hybrid_retrieval.md)
+- Hybrid Benchmark SQL Script: [`sql/10_hybrid_retrieval_queries.sql`](file:///D:/HybridHealthcareVectorDB/sql/10_hybrid_retrieval_queries.sql)
+
 

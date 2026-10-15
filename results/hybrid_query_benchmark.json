@@ -1,0 +1,1030 @@
+{
+  "timestamp": "2026-10-15T16:55:17Z",
+  "environment": {
+    "postgres_version": "PostgreSQL 18.6 on x86_64-windows, compiled by msvc-19.44.35229, 64-bit",
+    "pgvector_version": "0.8.6",
+    "model_id": "sentence-transformers/all-MiniLM-L6-v2",
+    "dimension": 384,
+    "model_vectors_count": 804,
+    "total_vectors_count": 804,
+    "table_disk_size_pretty": "1624 kB",
+    "table_disk_size_bytes": 1662976
+  },
+  "benchmark_parameters": {
+    "top_k": 10,
+    "iterations_per_query": 3,
+    "num_queries": 5
+  },
+  "tiers_evaluated": [
+    {
+      "tier_key": "tier1_low_selectivity",
+      "tier_title": "Low Selectivity (Broad Filter ~70%)",
+      "tier_description": "Adult patients (age >= 18) in major departments",
+      "filters": {
+        "min_age": 18,
+        "department": [
+          "Cardiology",
+          "Internal Medicine",
+          "Pulmonology",
+          "Emergency",
+          "Neurology"
+        ]
+      },
+      "matching_chunks": 360,
+      "total_chunks": 804,
+      "selectivity_percentage": 44.78,
+      "configurations": [
+        {
+          "config_name": "Filtered Exact Flat Search",
+          "index_type": "Flat",
+          "strategy": "exact_flat",
+          "planner_strategy": "exact_sequential_scan",
+          "scanned_indexes": [],
+          "scanned_bitmap_indexes": [],
+          "latency_ms": {
+            "mean": 61.923,
+            "p50": 53.172,
+            "p95": 163.993,
+            "p99": 163.993
+          },
+          "qps": 16.15,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 10,
+          "expected_gt_count": 10,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=488.98..489.01 rows=10 width=2786) (actual time=4.646..4.651 rows=10.00 loops=1)",
+            "  Buffers: shared hit=411",
+            "  ->  Sort  (cost=488.98..489.54 rows=224 width=2786) (actual time=4.644..4.649 rows=10.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: top-N heapsort  Memory: 97kB",
+            "        Buffers: shared hit=411",
+            "        ->  GroupAggregate  (cost=469.58..484.14 rows=224 width=2786) (actual time=3.793..4.453 rows=360.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=408",
+            "              ->  Sort  (cost=469.58..470.14 rows=224 width=2777) (actual time=3.768..3.797 rows=698.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 1969kB"
+          ]
+        },
+        {
+          "config_name": "HNSW (ef_s=40, iterative=off)",
+          "index_type": "HNSW",
+          "strategy": "hnsw",
+          "planner_strategy": "pre_filter_relational_scan",
+          "scanned_indexes": [
+            "clinical_documents_synthetic_document_num_key",
+            "patients_synthetic_mrn_key",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [
+            "idx_encounters_dept_type"
+          ],
+          "latency_ms": {
+            "mean": 79.587,
+            "p50": 60.658,
+            "p95": 171.909,
+            "p99": 171.909
+          },
+          "qps": 12.56,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 10,
+          "expected_gt_count": 10,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=528.71..528.74 rows=10 width=2786) (actual time=4.295..4.299 rows=10.00 loops=1)",
+            "  Buffers: shared hit=3108",
+            "  ->  Sort  (cost=528.71..529.27 rows=224 width=2786) (actual time=4.294..4.297 rows=10.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: top-N heapsort  Memory: 97kB",
+            "        Buffers: shared hit=3108",
+            "        ->  GroupAggregate  (cost=509.31..523.87 rows=224 width=2786) (actual time=3.401..4.125 rows=360.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=3105",
+            "              ->  Sort  (cost=509.31..509.87 rows=224 width=2777) (actual time=3.381..3.415 rows=698.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 1969kB"
+          ]
+        },
+        {
+          "config_name": "HNSW (ef_s=40, iterative=relaxed_order)",
+          "index_type": "HNSW",
+          "strategy": "hnsw",
+          "planner_strategy": "pre_filter_relational_scan",
+          "scanned_indexes": [
+            "clinical_documents_synthetic_document_num_key",
+            "patients_synthetic_mrn_key",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [
+            "idx_encounters_dept_type"
+          ],
+          "latency_ms": {
+            "mean": 65.544,
+            "p50": 59.087,
+            "p95": 158.905,
+            "p99": 158.905
+          },
+          "qps": 15.26,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 10,
+          "expected_gt_count": 10,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=528.71..528.74 rows=10 width=2786) (actual time=4.522..4.528 rows=10.00 loops=1)",
+            "  Buffers: shared hit=3108",
+            "  ->  Sort  (cost=528.71..529.27 rows=224 width=2786) (actual time=4.521..4.526 rows=10.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: top-N heapsort  Memory: 97kB",
+            "        Buffers: shared hit=3108",
+            "        ->  GroupAggregate  (cost=509.31..523.87 rows=224 width=2786) (actual time=3.614..4.340 rows=360.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=3105",
+            "              ->  Sort  (cost=509.31..509.87 rows=224 width=2777) (actual time=3.584..3.627 rows=698.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 1969kB"
+          ]
+        },
+        {
+          "config_name": "IVFFlat (prb=5, iterative=off)",
+          "index_type": "IVFFlat",
+          "strategy": "ivfflat",
+          "planner_strategy": "pre_filter_relational_scan",
+          "scanned_indexes": [
+            "clinical_documents_synthetic_document_num_key",
+            "patients_synthetic_mrn_key",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [
+            "idx_encounters_dept_type"
+          ],
+          "latency_ms": {
+            "mean": 82.175,
+            "p50": 62.621,
+            "p95": 169.991,
+            "p99": 169.991
+          },
+          "qps": 12.17,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 10,
+          "expected_gt_count": 10,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=528.71..528.74 rows=10 width=2786) (actual time=4.119..4.124 rows=10.00 loops=1)",
+            "  Buffers: shared hit=3108",
+            "  ->  Sort  (cost=528.71..529.27 rows=224 width=2786) (actual time=4.119..4.122 rows=10.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: top-N heapsort  Memory: 97kB",
+            "        Buffers: shared hit=3108",
+            "        ->  GroupAggregate  (cost=509.31..523.87 rows=224 width=2786) (actual time=3.255..3.954 rows=360.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=3105",
+            "              ->  Sort  (cost=509.31..509.87 rows=224 width=2777) (actual time=3.237..3.268 rows=698.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 1969kB"
+          ]
+        },
+        {
+          "config_name": "IVFFlat (prb=5, iterative=relaxed_order)",
+          "index_type": "IVFFlat",
+          "strategy": "ivfflat",
+          "planner_strategy": "pre_filter_relational_scan",
+          "scanned_indexes": [
+            "clinical_documents_synthetic_document_num_key",
+            "patients_synthetic_mrn_key",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [
+            "idx_encounters_dept_type"
+          ],
+          "latency_ms": {
+            "mean": 87.543,
+            "p50": 59.127,
+            "p95": 183.384,
+            "p99": 183.384
+          },
+          "qps": 11.42,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 10,
+          "expected_gt_count": 10,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=528.71..528.74 rows=10 width=2786) (actual time=4.426..4.433 rows=10.00 loops=1)",
+            "  Buffers: shared hit=3108",
+            "  ->  Sort  (cost=528.71..529.27 rows=224 width=2786) (actual time=4.425..4.430 rows=10.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: top-N heapsort  Memory: 97kB",
+            "        Buffers: shared hit=3108",
+            "        ->  GroupAggregate  (cost=509.31..523.87 rows=224 width=2786) (actual time=3.516..4.252 rows=360.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=3105",
+            "              ->  Sort  (cost=509.31..509.87 rows=224 width=2777) (actual time=3.494..3.535 rows=698.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 1969kB"
+          ]
+        },
+        {
+          "config_name": "Planner Free Choice (Joint Query)",
+          "index_type": "Joint Cost Optimization",
+          "strategy": "planner_choice",
+          "planner_strategy": "iterative_vector_scan",
+          "scanned_indexes": [
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id"
+          ],
+          "scanned_bitmap_indexes": [],
+          "latency_ms": {
+            "mean": 81.981,
+            "p50": 59.808,
+            "p95": 173.715,
+            "p99": 173.715
+          },
+          "qps": 12.2,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 10,
+          "expected_gt_count": 10,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=427.06..427.09 rows=10 width=2786) (actual time=4.501..4.516 rows=10.00 loops=1)",
+            "  Buffers: shared hit=2032",
+            "  ->  Sort  (cost=427.06..427.62 rows=224 width=2786) (actual time=4.500..4.515 rows=10.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: top-N heapsort  Memory: 97kB",
+            "        Buffers: shared hit=2032",
+            "        ->  GroupAggregate  (cost=407.66..422.22 rows=224 width=2786) (actual time=3.649..4.345 rows=360.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=2029",
+            "              ->  Sort  (cost=407.66..408.22 rows=224 width=2777) (actual time=3.628..3.672 rows=698.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 1969kB"
+          ]
+        }
+      ]
+    },
+    {
+      "tier_key": "tier2_moderate_selectivity",
+      "tier_title": "Moderate Selectivity (~20%)",
+      "tier_description": "Cardiology department encounters",
+      "filters": {
+        "department": "Cardiology"
+      },
+      "matching_chunks": 85,
+      "total_chunks": 804,
+      "selectivity_percentage": 10.57,
+      "configurations": [
+        {
+          "config_name": "Filtered Exact Flat Search",
+          "index_type": "Flat",
+          "strategy": "exact_flat",
+          "planner_strategy": "exact_sequential_scan",
+          "scanned_indexes": [],
+          "scanned_bitmap_indexes": [],
+          "latency_ms": {
+            "mean": 81.594,
+            "p50": 61.501,
+            "p95": 167.812,
+            "p99": 167.812
+          },
+          "qps": 12.26,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 10,
+          "expected_gt_count": 10,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=473.69..473.71 rows=10 width=2786) (actual time=2.769..2.775 rows=10.00 loops=1)",
+            "  Buffers: shared hit=411",
+            "  ->  Sort  (cost=473.69..474.08 rows=157 width=2786) (actual time=2.768..2.773 rows=10.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: top-N heapsort  Memory: 89kB",
+            "        Buffers: shared hit=411",
+            "        ->  GroupAggregate  (cost=460.09..470.30 rows=157 width=2786) (actual time=2.493..2.674 rows=85.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=408",
+            "              ->  Sort  (cost=460.09..460.48 rows=157 width=2777) (actual time=2.468..2.480 rows=197.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 572kB"
+          ]
+        },
+        {
+          "config_name": "HNSW (ef_s=40, iterative=off)",
+          "index_type": "HNSW",
+          "strategy": "hnsw",
+          "planner_strategy": "pre_filter_relational_scan",
+          "scanned_indexes": [
+            "clinical_documents_synthetic_document_num_key",
+            "patients_pkey",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [
+            "idx_encounters_dept_type"
+          ],
+          "latency_ms": {
+            "mean": 74.748,
+            "p50": 53.672,
+            "p95": 161.953,
+            "p99": 161.953
+          },
+          "qps": 13.38,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 10,
+          "expected_gt_count": 10,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=441.52..441.54 rows=10 width=2786) (actual time=1.750..1.753 rows=10.00 loops=1)",
+            "  Buffers: shared hit=847",
+            "  ->  Sort  (cost=441.52..441.91 rows=157 width=2786) (actual time=1.747..1.751 rows=10.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: top-N heapsort  Memory: 89kB",
+            "        Buffers: shared hit=847",
+            "        ->  GroupAggregate  (cost=427.92..438.13 rows=157 width=2786) (actual time=1.490..1.665 rows=85.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=844",
+            "              ->  Sort  (cost=427.92..428.31 rows=157 width=2777) (actual time=1.455..1.464 rows=197.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 572kB"
+          ]
+        },
+        {
+          "config_name": "HNSW (ef_s=40, iterative=relaxed_order)",
+          "index_type": "HNSW",
+          "strategy": "hnsw",
+          "planner_strategy": "pre_filter_relational_scan",
+          "scanned_indexes": [
+            "clinical_documents_synthetic_document_num_key",
+            "patients_pkey",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [
+            "idx_encounters_dept_type"
+          ],
+          "latency_ms": {
+            "mean": 68.411,
+            "p50": 56.07,
+            "p95": 164.825,
+            "p99": 164.825
+          },
+          "qps": 14.62,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 10,
+          "expected_gt_count": 10,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=441.52..441.54 rows=10 width=2786) (actual time=1.658..1.661 rows=10.00 loops=1)",
+            "  Buffers: shared hit=847",
+            "  ->  Sort  (cost=441.52..441.91 rows=157 width=2786) (actual time=1.657..1.659 rows=10.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: top-N heapsort  Memory: 89kB",
+            "        Buffers: shared hit=847",
+            "        ->  GroupAggregate  (cost=427.92..438.13 rows=157 width=2786) (actual time=1.409..1.584 rows=85.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=844",
+            "              ->  Sort  (cost=427.92..428.31 rows=157 width=2777) (actual time=1.387..1.394 rows=197.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 572kB"
+          ]
+        },
+        {
+          "config_name": "IVFFlat (prb=5, iterative=off)",
+          "index_type": "IVFFlat",
+          "strategy": "ivfflat",
+          "planner_strategy": "pre_filter_relational_scan",
+          "scanned_indexes": [
+            "clinical_documents_synthetic_document_num_key",
+            "patients_pkey",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [
+            "idx_encounters_dept_type"
+          ],
+          "latency_ms": {
+            "mean": 84.297,
+            "p50": 58.59,
+            "p95": 169.578,
+            "p99": 169.578
+          },
+          "qps": 11.86,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 10,
+          "expected_gt_count": 10,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=441.52..441.54 rows=10 width=2786) (actual time=1.745..1.748 rows=10.00 loops=1)",
+            "  Buffers: shared hit=847",
+            "  ->  Sort  (cost=441.52..441.91 rows=157 width=2786) (actual time=1.744..1.747 rows=10.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: top-N heapsort  Memory: 89kB",
+            "        Buffers: shared hit=847",
+            "        ->  GroupAggregate  (cost=427.92..438.13 rows=157 width=2786) (actual time=1.495..1.671 rows=85.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=844",
+            "              ->  Sort  (cost=427.92..428.31 rows=157 width=2777) (actual time=1.472..1.481 rows=197.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 572kB"
+          ]
+        },
+        {
+          "config_name": "IVFFlat (prb=5, iterative=relaxed_order)",
+          "index_type": "IVFFlat",
+          "strategy": "ivfflat",
+          "planner_strategy": "pre_filter_relational_scan",
+          "scanned_indexes": [
+            "clinical_documents_synthetic_document_num_key",
+            "patients_pkey",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [
+            "idx_encounters_dept_type"
+          ],
+          "latency_ms": {
+            "mean": 79.013,
+            "p50": 57.67,
+            "p95": 166.991,
+            "p99": 166.991
+          },
+          "qps": 12.66,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 10,
+          "expected_gt_count": 10,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=441.52..441.54 rows=10 width=2786) (actual time=1.706..1.710 rows=10.00 loops=1)",
+            "  Buffers: shared hit=847",
+            "  ->  Sort  (cost=441.52..441.91 rows=157 width=2786) (actual time=1.705..1.708 rows=10.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: top-N heapsort  Memory: 89kB",
+            "        Buffers: shared hit=847",
+            "        ->  GroupAggregate  (cost=427.92..438.13 rows=157 width=2786) (actual time=1.460..1.632 rows=85.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=844",
+            "              ->  Sort  (cost=427.92..428.31 rows=157 width=2777) (actual time=1.438..1.446 rows=197.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 572kB"
+          ]
+        },
+        {
+          "config_name": "Planner Free Choice (Joint Query)",
+          "index_type": "Joint Cost Optimization",
+          "strategy": "planner_choice",
+          "planner_strategy": "iterative_vector_scan",
+          "scanned_indexes": [
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id"
+          ],
+          "scanned_bitmap_indexes": [],
+          "latency_ms": {
+            "mean": 65.256,
+            "p50": 59.415,
+            "p95": 164.044,
+            "p99": 164.044
+          },
+          "qps": 15.32,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 10,
+          "expected_gt_count": 10,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=346.44..346.47 rows=10 width=2786) (actual time=1.705..1.708 rows=10.00 loops=1)",
+            "  Buffers: shared hit=602",
+            "  ->  Sort  (cost=346.44..346.83 rows=157 width=2786) (actual time=1.704..1.707 rows=10.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: top-N heapsort  Memory: 89kB",
+            "        Buffers: shared hit=602",
+            "        ->  GroupAggregate  (cost=332.84..343.05 rows=157 width=2786) (actual time=1.462..1.631 rows=85.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=599",
+            "              ->  Sort  (cost=332.84..333.24 rows=157 width=2777) (actual time=1.440..1.448 rows=197.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 572kB"
+          ]
+        }
+      ]
+    },
+    {
+      "tier_key": "tier3_high_selectivity",
+      "tier_title": "High Selectivity / Restrictive (~1.5%)",
+      "tier_description": "Pulmonology radiology reports",
+      "filters": {
+        "department": "Pulmonology",
+        "document_type": "radiology_report"
+      },
+      "matching_chunks": 8,
+      "total_chunks": 804,
+      "selectivity_percentage": 1.0,
+      "configurations": [
+        {
+          "config_name": "Filtered Exact Flat Search",
+          "index_type": "Flat",
+          "strategy": "exact_flat",
+          "planner_strategy": "exact_sequential_scan",
+          "scanned_indexes": [],
+          "scanned_bitmap_indexes": [],
+          "latency_ms": {
+            "mean": 69.96,
+            "p50": 55.044,
+            "p95": 160.543,
+            "p99": 160.543
+          },
+          "qps": 14.29,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 8,
+          "expected_gt_count": 8,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=448.28..448.31 rows=10 width=2786) (actual time=1.373..1.377 rows=8.00 loops=1)",
+            "  Buffers: shared hit=411",
+            "  ->  Sort  (cost=448.28..448.36 rows=31 width=2786) (actual time=1.372..1.375 rows=8.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: quicksort  Memory: 57kB",
+            "        Buffers: shared hit=411",
+            "        ->  GroupAggregate  (cost=445.60..447.61 rows=31 width=2786) (actual time=1.282..1.299 rows=8.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=408",
+            "              ->  Sort  (cost=445.60..445.68 rows=31 width=2777) (actual time=1.259..1.263 rows=12.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 59kB"
+          ]
+        },
+        {
+          "config_name": "HNSW (ef_s=40, iterative=off)",
+          "index_type": "HNSW",
+          "strategy": "hnsw",
+          "planner_strategy": "pre_filter_relational_scan",
+          "scanned_indexes": [
+            "patients_pkey",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [
+            "idx_clinical_docs_type_date",
+            "idx_encounters_dept_type"
+          ],
+          "latency_ms": {
+            "mean": 70.357,
+            "p50": 56.025,
+            "p95": 165.292,
+            "p99": 165.292
+          },
+          "qps": 14.21,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 8,
+          "expected_gt_count": 8,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=235.74..235.77 rows=10 width=2786) (actual time=0.518..0.521 rows=8.00 loops=1)",
+            "  Buffers: shared hit=194",
+            "  ->  Sort  (cost=235.74..235.82 rows=31 width=2786) (actual time=0.517..0.519 rows=8.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: quicksort  Memory: 57kB",
+            "        Buffers: shared hit=194",
+            "        ->  GroupAggregate  (cost=233.06..235.07 rows=31 width=2786) (actual time=0.448..0.463 rows=8.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=191",
+            "              ->  Sort  (cost=233.06..233.13 rows=31 width=2777) (actual time=0.428..0.430 rows=12.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 59kB"
+          ]
+        },
+        {
+          "config_name": "HNSW (ef_s=40, iterative=relaxed_order)",
+          "index_type": "HNSW",
+          "strategy": "hnsw",
+          "planner_strategy": "pre_filter_relational_scan",
+          "scanned_indexes": [
+            "patients_pkey",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [
+            "idx_clinical_docs_type_date",
+            "idx_encounters_dept_type"
+          ],
+          "latency_ms": {
+            "mean": 68.504,
+            "p50": 53.078,
+            "p95": 165.784,
+            "p99": 165.784
+          },
+          "qps": 14.6,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 8,
+          "expected_gt_count": 8,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=235.74..235.77 rows=10 width=2786) (actual time=0.565..0.567 rows=8.00 loops=1)",
+            "  Buffers: shared hit=194",
+            "  ->  Sort  (cost=235.74..235.82 rows=31 width=2786) (actual time=0.564..0.566 rows=8.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: quicksort  Memory: 57kB",
+            "        Buffers: shared hit=194",
+            "        ->  GroupAggregate  (cost=233.06..235.07 rows=31 width=2786) (actual time=0.479..0.494 rows=8.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=191",
+            "              ->  Sort  (cost=233.06..233.13 rows=31 width=2777) (actual time=0.457..0.460 rows=12.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 59kB"
+          ]
+        },
+        {
+          "config_name": "IVFFlat (prb=5, iterative=off)",
+          "index_type": "IVFFlat",
+          "strategy": "ivfflat",
+          "planner_strategy": "pre_filter_relational_scan",
+          "scanned_indexes": [
+            "patients_pkey",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [
+            "idx_clinical_docs_type_date",
+            "idx_encounters_dept_type"
+          ],
+          "latency_ms": {
+            "mean": 76.546,
+            "p50": 55.184,
+            "p95": 174.693,
+            "p99": 174.693
+          },
+          "qps": 13.06,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 8,
+          "expected_gt_count": 8,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=235.74..235.77 rows=10 width=2786) (actual time=0.523..0.526 rows=8.00 loops=1)",
+            "  Buffers: shared hit=194",
+            "  ->  Sort  (cost=235.74..235.82 rows=31 width=2786) (actual time=0.522..0.524 rows=8.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: quicksort  Memory: 57kB",
+            "        Buffers: shared hit=194",
+            "        ->  GroupAggregate  (cost=233.06..235.07 rows=31 width=2786) (actual time=0.452..0.467 rows=8.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=191",
+            "              ->  Sort  (cost=233.06..233.13 rows=31 width=2777) (actual time=0.430..0.433 rows=12.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 59kB"
+          ]
+        },
+        {
+          "config_name": "IVFFlat (prb=5, iterative=relaxed_order)",
+          "index_type": "IVFFlat",
+          "strategy": "ivfflat",
+          "planner_strategy": "pre_filter_relational_scan",
+          "scanned_indexes": [
+            "patients_pkey",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [
+            "idx_clinical_docs_type_date",
+            "idx_encounters_dept_type"
+          ],
+          "latency_ms": {
+            "mean": 87.996,
+            "p50": 56.002,
+            "p95": 162.214,
+            "p99": 162.214
+          },
+          "qps": 11.36,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 8,
+          "expected_gt_count": 8,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=235.74..235.77 rows=10 width=2786) (actual time=0.529..0.532 rows=8.00 loops=1)",
+            "  Buffers: shared hit=194",
+            "  ->  Sort  (cost=235.74..235.82 rows=31 width=2786) (actual time=0.528..0.531 rows=8.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: quicksort  Memory: 57kB",
+            "        Buffers: shared hit=194",
+            "        ->  GroupAggregate  (cost=233.06..235.07 rows=31 width=2786) (actual time=0.451..0.468 rows=8.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=191",
+            "              ->  Sort  (cost=233.06..233.13 rows=31 width=2777) (actual time=0.431..0.434 rows=12.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 59kB"
+          ]
+        },
+        {
+          "config_name": "Planner Free Choice (Joint Query)",
+          "index_type": "Joint Cost Optimization",
+          "strategy": "planner_choice",
+          "planner_strategy": "iterative_vector_scan",
+          "scanned_indexes": [
+            "patients_pkey",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_chunk_id"
+          ],
+          "scanned_bitmap_indexes": [],
+          "latency_ms": {
+            "mean": 60.083,
+            "p50": 51.999,
+            "p95": 165.694,
+            "p99": 165.694
+          },
+          "qps": 16.64,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 8,
+          "expected_gt_count": 8,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=218.85..218.87 rows=10 width=2786) (actual time=0.667..0.669 rows=8.00 loops=1)",
+            "  Buffers: shared hit=214",
+            "  ->  Sort  (cost=218.85..218.92 rows=31 width=2786) (actual time=0.666..0.667 rows=8.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: quicksort  Memory: 57kB",
+            "        Buffers: shared hit=214",
+            "        ->  GroupAggregate  (cost=216.16..218.18 rows=31 width=2786) (actual time=0.625..0.639 rows=8.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=211",
+            "              ->  Sort  (cost=216.16..216.24 rows=31 width=2777) (actual time=0.605..0.607 rows=12.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 59kB"
+          ]
+        }
+      ]
+    },
+    {
+      "tier_key": "tier4_zero_match",
+      "tier_title": "Zero-Match / Ultra-Restrictive (0%)",
+      "tier_description": "Impossible age range (age >= 150)",
+      "filters": {
+        "min_age": 150
+      },
+      "matching_chunks": 0,
+      "total_chunks": 804,
+      "selectivity_percentage": 0.0,
+      "configurations": [
+        {
+          "config_name": "Filtered Exact Flat Search",
+          "index_type": "Flat",
+          "strategy": "exact_flat",
+          "planner_strategy": "exact_sequential_scan",
+          "scanned_indexes": [],
+          "scanned_bitmap_indexes": [],
+          "latency_ms": {
+            "mean": 86.684,
+            "p50": 61.767,
+            "p95": 168.981,
+            "p99": 168.981
+          },
+          "qps": 11.54,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 0,
+          "expected_gt_count": 0,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=534.21..534.23 rows=10 width=2786) (actual time=0.843..0.845 rows=0.00 loops=1)",
+            "  Buffers: shared hit=144",
+            "  ->  Sort  (cost=534.21..535.45 rows=496 width=2786) (actual time=0.842..0.843 rows=0.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: quicksort  Memory: 25kB",
+            "        Buffers: shared hit=144",
+            "        ->  GroupAggregate  (cost=491.25..523.49 rows=496 width=2786) (actual time=0.830..0.832 rows=0.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=141",
+            "              ->  Sort  (cost=491.25..492.49 rows=496 width=2777) (actual time=0.829..0.831 rows=0.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 25kB"
+          ]
+        },
+        {
+          "config_name": "HNSW (ef_s=40, iterative=off)",
+          "index_type": "HNSW",
+          "strategy": "hnsw",
+          "planner_strategy": "iterative_vector_scan",
+          "scanned_indexes": [
+            "clinical_documents_synthetic_document_num_key",
+            "encounters_pkey",
+            "patients_synthetic_mrn_key",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_model_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [],
+          "latency_ms": {
+            "mean": 60.993,
+            "p50": 52.803,
+            "p95": 165.262,
+            "p99": 165.262
+          },
+          "qps": 16.4,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 0,
+          "expected_gt_count": 0,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=779.78..779.81 rows=10 width=2786) (actual time=0.945..0.948 rows=0.00 loops=1)",
+            "  Buffers: shared hit=498",
+            "  ->  Sort  (cost=779.78..781.02 rows=496 width=2786) (actual time=0.944..0.946 rows=0.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: quicksort  Memory: 25kB",
+            "        Buffers: shared hit=498",
+            "        ->  GroupAggregate  (cost=626.95..769.06 rows=496 width=2786) (actual time=0.930..0.932 rows=0.00 loops=1)",
+            "              Group Key: e.encounter_id, ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, ce.embedding",
+            "              Buffers: shared hit=495",
+            "              ->  Incremental Sort  (cost=626.95..738.06 rows=496 width=2777) (actual time=0.928..0.930 rows=0.00 loops=1)",
+            "                    Sort Key: e.encounter_id, ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Presorted Key: e.encounter_id"
+          ]
+        },
+        {
+          "config_name": "HNSW (ef_s=40, iterative=relaxed_order)",
+          "index_type": "HNSW",
+          "strategy": "hnsw",
+          "planner_strategy": "iterative_vector_scan",
+          "scanned_indexes": [
+            "clinical_documents_synthetic_document_num_key",
+            "encounters_pkey",
+            "patients_synthetic_mrn_key",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_model_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [],
+          "latency_ms": {
+            "mean": 62.877,
+            "p50": 55.184,
+            "p95": 172.275,
+            "p99": 172.275
+          },
+          "qps": 15.9,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 0,
+          "expected_gt_count": 0,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=779.78..779.81 rows=10 width=2786) (actual time=0.888..0.890 rows=0.00 loops=1)",
+            "  Buffers: shared hit=498",
+            "  ->  Sort  (cost=779.78..781.02 rows=496 width=2786) (actual time=0.887..0.889 rows=0.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: quicksort  Memory: 25kB",
+            "        Buffers: shared hit=498",
+            "        ->  GroupAggregate  (cost=626.95..769.06 rows=496 width=2786) (actual time=0.879..0.881 rows=0.00 loops=1)",
+            "              Group Key: e.encounter_id, ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, ce.embedding",
+            "              Buffers: shared hit=495",
+            "              ->  Incremental Sort  (cost=626.95..738.06 rows=496 width=2777) (actual time=0.878..0.880 rows=0.00 loops=1)",
+            "                    Sort Key: e.encounter_id, ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Presorted Key: e.encounter_id"
+          ]
+        },
+        {
+          "config_name": "IVFFlat (prb=5, iterative=off)",
+          "index_type": "IVFFlat",
+          "strategy": "ivfflat",
+          "planner_strategy": "iterative_vector_scan",
+          "scanned_indexes": [
+            "clinical_documents_synthetic_document_num_key",
+            "encounters_pkey",
+            "patients_synthetic_mrn_key",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_model_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [],
+          "latency_ms": {
+            "mean": 78.547,
+            "p50": 55.728,
+            "p95": 174.964,
+            "p99": 174.964
+          },
+          "qps": 12.73,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 0,
+          "expected_gt_count": 0,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=779.78..779.81 rows=10 width=2786) (actual time=0.907..0.909 rows=0.00 loops=1)",
+            "  Buffers: shared hit=498",
+            "  ->  Sort  (cost=779.78..781.02 rows=496 width=2786) (actual time=0.906..0.908 rows=0.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: quicksort  Memory: 25kB",
+            "        Buffers: shared hit=498",
+            "        ->  GroupAggregate  (cost=626.95..769.06 rows=496 width=2786) (actual time=0.895..0.897 rows=0.00 loops=1)",
+            "              Group Key: e.encounter_id, ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, ce.embedding",
+            "              Buffers: shared hit=495",
+            "              ->  Incremental Sort  (cost=626.95..738.06 rows=496 width=2777) (actual time=0.894..0.896 rows=0.00 loops=1)",
+            "                    Sort Key: e.encounter_id, ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Presorted Key: e.encounter_id"
+          ]
+        },
+        {
+          "config_name": "IVFFlat (prb=5, iterative=relaxed_order)",
+          "index_type": "IVFFlat",
+          "strategy": "ivfflat",
+          "planner_strategy": "iterative_vector_scan",
+          "scanned_indexes": [
+            "clinical_documents_synthetic_document_num_key",
+            "encounters_pkey",
+            "patients_synthetic_mrn_key",
+            "idx_doc_chunks_document_id",
+            "idx_chunk_embeddings_model_id",
+            "idx_diagnoses_encounter_id"
+          ],
+          "scanned_bitmap_indexes": [],
+          "latency_ms": {
+            "mean": 75.531,
+            "p50": 55.78,
+            "p95": 160.541,
+            "p99": 160.541
+          },
+          "qps": 13.24,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 0,
+          "expected_gt_count": 0,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=779.78..779.81 rows=10 width=2786) (actual time=1.061..1.065 rows=0.00 loops=1)",
+            "  Buffers: shared hit=498",
+            "  ->  Sort  (cost=779.78..781.02 rows=496 width=2786) (actual time=1.060..1.064 rows=0.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: quicksort  Memory: 25kB",
+            "        Buffers: shared hit=498",
+            "        ->  GroupAggregate  (cost=626.95..769.06 rows=496 width=2786) (actual time=1.048..1.052 rows=0.00 loops=1)",
+            "              Group Key: e.encounter_id, ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, ce.embedding",
+            "              Buffers: shared hit=495",
+            "              ->  Incremental Sort  (cost=626.95..738.06 rows=496 width=2777) (actual time=1.046..1.050 rows=0.00 loops=1)",
+            "                    Sort Key: e.encounter_id, ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Presorted Key: e.encounter_id"
+          ]
+        },
+        {
+          "config_name": "Planner Free Choice (Joint Query)",
+          "index_type": "Joint Cost Optimization",
+          "strategy": "planner_choice",
+          "planner_strategy": "exact_sequential_scan",
+          "scanned_indexes": [],
+          "scanned_bitmap_indexes": [],
+          "latency_ms": {
+            "mean": 85.621,
+            "p50": 58.273,
+            "p95": 173.573,
+            "p99": 173.573
+          },
+          "qps": 11.68,
+          "recall_at_k": 1.0,
+          "strict_id_recall_at_k": 1.0,
+          "avg_returned_count": 0,
+          "expected_gt_count": 0,
+          "result_deficit": 0,
+          "sample_plan": [
+            "Limit  (cost=534.21..534.23 rows=10 width=2786) (actual time=0.810..0.812 rows=0.00 loops=1)",
+            "  Buffers: shared hit=144",
+            "  ->  Sort  (cost=534.21..535.45 rows=496 width=2786) (actual time=0.809..0.811 rows=0.00 loops=1)",
+            "        Sort Key: ((ce.embedding <=> '[-0.14086576,0,-0.0540307,0,0,0,0,0.1678811,0,0,0,0,0,0,0,0,0,0,0,0,0.03859336,0,0,0.13700642,0,0.13507675,0,0,0,0.15823276,0,0.06753837,0,0,0,0,0,0,0.14858443,0,0,0,0,0,0,0,0,0,0,0,0,-0.19875579,0,0,-0.19296679,0,0,0,0,0,0.24120848,0,-0.19682613,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.121569075,0,0,0.12542841,0,0,0,0,0,-0.12542841,0,-0.21419314,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.1620921,0,0,-0.10034273,0,0,0,0,0,-0.05596037,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.24120848,0,0,-0.11578007,0,0,0,0,0,0.13507675,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.07911638,0,0,0,0,0,0.18331845,0,0,-0.023156015,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.123498745,0,0,0,0,0,0,0,-0.042452693,0,0,0,0,-0.098413065,0.11770974,0,0,-0.017367011,0,0,0,0,0,0,0,0,0,0,0,0,0,0.069468044,0,0,0,0,0,0,0,-0.01929668,0,0,0,0,-0.23927882,-0.071397714,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.14279543,0,0,0,0,0,-0.23927882,0,0.04438236,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.11578007,0,0,0,0,0,-0.123498745,0,0.07911638,0,0,0,0,0.16981077,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.021226346,0,0,0,0.123498745,0,0.069468044,0,-0.13507675,0,0,0,0,-0.16016243,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.23156014,0,0,0,0.084905386,0,-0.011578008,0,-0.11770974,0,0,0,0,-0.02701535,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,-0.015437343,0,-0.061749373,0,0,0,-0.16595145,0]'::vector))",
+            "        Sort Method: quicksort  Memory: 25kB",
+            "        Buffers: shared hit=144",
+            "        ->  GroupAggregate  (cost=491.25..523.49 rows=496 width=2786) (actual time=0.796..0.798 rows=0.00 loops=1)",
+            "              Group Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding",
+            "              Buffers: shared hit=141",
+            "              ->  Sort  (cost=491.25..492.49 rows=496 width=2777) (actual time=0.795..0.797 rows=0.00 loops=1)",
+            "                    Sort Key: ce.chunk_id, dc.chunk_index, dc.chunk_text, dc.char_length, dc.token_count, cd.synthetic_document_num, p.synthetic_mrn, e.encounter_id, ce.embedding, ((((diag.icd10_code)::text || ': '::text) || (diag.diagnosis_description)::text))",
+            "                    Sort Method: quicksort  Memory: 25kB"
+          ]
+        }
+      ]
+    }
+  ]
+}
