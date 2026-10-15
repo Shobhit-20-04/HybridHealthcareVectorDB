@@ -236,7 +236,7 @@ python scripts/count_records.py
 # 7. Run Database Referential & Invariant Integrity Audits
 python scripts/validate_ingestion.py
 
-# 8. Run Complete Automated Test Suite (63 Unit, Ingestion, Embedding, Retrieval, Benchmark & Hybrid Tests)
+# 8. Run Complete Automated Test Suite (77 Unit, Ingestion, Embedding, Multimodal & Hybrid Tests)
 pytest tests/ -v
 
 # 9. Execute Controlled Vector-Index Empirical Benchmark (Flat vs HNSW vs IVFFlat)
@@ -247,6 +247,15 @@ python scripts/search_hybrid.py "shortness of breath and chest pain" --departmen
 
 # 11. Run Multi-Selectivity Controlled Hybrid Benchmark (Low, Moderate, High, Zero-Match Tiers)
 python scripts/run_hybrid_experiments.py --top-k 10 --iterations 3
+
+# 12. Synchronize Synthetic Imaging Assets & Generate 512-d Multimodal Embeddings
+python scripts/embed_images.py --smoke-test
+
+# 13. Execute Image-to-Image Visual Similarity Search (Ranked by Cosine Distance)
+python scripts/search_multimodal.py --image "data/synthetic/images/dx/syn-img-0020-01-01.png" --modality DX --top-k 5 --explain
+
+# 14. Execute Cross-Modal Text-to-Image Semantic Search (Aligned CLIP Latent Space)
+python scripts/search_multimodal.py --text "Chest CT showing bilateral infiltrates" --body-site Chest --top-k 5
 ```
 
 For detailed architectural specifications:
@@ -255,6 +264,8 @@ For detailed architectural specifications:
 - Ground-Truth Exact Retrieval Baseline: [`docs/exact_similarity_search.md`](file:///D:/HybridHealthcareVectorDB/docs/exact_similarity_search.md)
 - Controlled Vector-Index Benchmark (Flat vs HNSW vs IVFFlat): [`docs/vector_index_experiments.md`](file:///D:/HybridHealthcareVectorDB/docs/vector_index_experiments.md)
 - Hybrid Relational–Vector Query Execution & Selectivity: [`docs/hybrid_retrieval.md`](file:///D:/HybridHealthcareVectorDB/docs/hybrid_retrieval.md)
-- Hybrid Benchmark SQL Script: [`sql/10_hybrid_retrieval_queries.sql`](file:///D:/HybridHealthcareVectorDB/sql/10_hybrid_retrieval_queries.sql)
+- Multimodal Storage, Vector Alignment & Cross-Modal Retrieval: [`docs/multimodal_retrieval.md`](file:///D:/HybridHealthcareVectorDB/docs/multimodal_retrieval.md)
+- Multimodal SQL Migration & Query Templates: [`sql/11_multimodal_schema_and_retrieval.sql`](file:///D:/HybridHealthcareVectorDB/sql/11_multimodal_schema_and_retrieval.sql)
+
 
 
