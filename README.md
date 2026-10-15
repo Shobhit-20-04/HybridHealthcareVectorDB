@@ -175,9 +175,64 @@ In strict compliance with academic standards:
 
 - [x] **Phase 1:** Project foundation, directory architecture, environment configuration, and implementation specification.
 - [x] **Phase 2:** PostgreSQL schema design, DDL definitions, pgvector indexing, and setup guides.
-- [ ] **Phase 3:** Synthetic healthcare dataset generator (encounters, notes, imaging metadata).
-- [ ] **Phase 4:** Dense embedding generation and batch ingestion pipeline.
-- [ ] **Phase 5:** Indexing implementation (Exact, IVFFlat, HNSW) and hybrid query engine.
-- [ ] **Phase 6:** Row-Level Security (RLS) policies and role-based access testing.
-- [ ] **Phase 7:** Rigorous experimental benchmark suite execution and result visualization.
-- [ ] **Phase 8:** Command-line RAG demonstration and academic final evaluation report.
+- [x] **Phase 3:** Synthetic healthcare dataset generator (`src/synthetic_generator.py`).
+- [x] **Phase 4:** Dense embedding generation and batch ingestion pipeline (`src/embeddings/`).
+- [x] **Phase 5:** Indexing implementation (Exact, IVFFlat, HNSW) and hybrid query engine (`src/retrieval/`).
+- [x] **Phase 6:** Row-Level Security (RLS) policies and role-based access testing (`src/security/`, `sql/06_security_rls.sql`).
+- [x] **Phase 7:** Rigorous experimental benchmark suite execution and result visualization (`src/benchmark/`, `results/`).
+- [x] **Phase 8:** Command-line RAG demonstration (`src/retrieval/cli_rag.py`) and automated test suite (`tests/`).
+
+---
+
+## 9. Empirical Experimental Results
+
+All benchmark metrics are directly measured on synthetic clinical datasets ($N = 453$ passages, 384 dimensions) using [`src/benchmark/benchmark_engine.py`](file:///D:/HybridHealthcareVectorDB/src/benchmark/benchmark_engine.py).
+
+### Table 1: Indexing Strategy Trade-offs (Corpus Size: 453 vectors)
+| Strategy | Build Time (ms) | Recall@10 | Mean Latency (ms) | P50 (ms) | P95 (ms) | Throughput (QPS) |
+|---|---|---|---|---|---|---|
+| **Exact Flat (Baseline)** | 0.00 | 1.000 | 1.483 | 1.462 | 1.667 | 674.2 |
+| **IVFFlat (lists=10, probes=2)** | 1864.48 | 1.000 | 0.551 | 0.470 | 0.878 | 1814.6 |
+| **HNSW (ef_search=40)** | 10.56 | 0.076 | 0.215 | 0.213 | 0.232 | 4642.1 |
+
+### Table 2: Hybrid Query Strategies Execution Times
+| Strategy | Relational Selectivity | Mean Latency (ms) | P50 (ms) | P95 (ms) | Throughput (QPS) |
+|---|---|---|---|---|---|
+| **Pure Vector Search** | Unfiltered (100% rows) | 1.631 | 1.418 | 2.177 | 613.0 |
+| **Pre-Filtering (Attribute-First)** | High Selectivity (~15% matches) | **0.907** | **0.895** | **0.993** | **1102.9** |
+| **Post-Filtering (Vector-First)** | High Selectivity (~15% matches) | 5.422 | 5.356 | 5.943 | 184.4 |
+
+### Architectural Insights & Findings
+1. **Pre-Filtering Superiority on Selective Predicates:**
+   - Under narrow clinical cohort filtering (e.g. `department = 'Cardiology'`), Pre-Filtering achieves **0.907 ms** versus **5.422 ms** for Post-Filtering (**~6x throughput speedup**). Pre-filtering discards non-matching rows using relational B-Tree indexes before performing high-dimensional vector distance calculations.
+2. **IVFFlat vs. Flat Search Trade-off:**
+   - IVFFlat clustered vector space into 10 Voronoi centroids, achieving **1.0 Recall@10** while reducing query latency by **62.8%** (0.551 ms vs 1.483 ms).
+3. **Database-Managed Access Control (RLS):**
+   - By enforcing Row-Level Security at the database kernel level (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`), clinical role isolation is maintained directly inside the query execution plan, eliminating application-layer permission leakage risks.
+
+---
+
+## 10. Reproducibility & Execution Commands
+
+```powershell
+# 1. Activate Virtual Environment
+.\.venv\Scripts\Activate.ps1
+
+# 2. Generate Synthetic Healthcare Cohort
+python src/synthetic_generator.py
+
+# 3. Ingest and Vectorize Embeddings
+python -m src.embeddings.ingest_embeddings
+
+# 4. Run Rigorous Empirical Benchmarks
+python -m src.benchmark.benchmark_engine
+
+# 5. Render Benchmark Visualization Charts
+python scripts/plot_benchmarks.py
+
+# 6. Run Headless Command-Line RAG Query Demonstration
+python -m src.retrieval.cli_rag --query "dyspnea and chest discomfort" --department "Cardiology" --top_k 3
+
+# 7. Execute Automated Test Suite
+pytest tests/ -v
+```

@@ -166,12 +166,12 @@ Because PostgreSQL is installed at `C:\Program Files\PostgreSQL\18`, `pgvector` 
 |---|---|---|---|
 | **Phase 1** | Project Initialization & Environment Definition | Directory hierarchy, requirements, `.env.example`, `.gitignore`, architectural plan | Completed |
 | **Phase 2** | Database Configuration & Relational Schema | PostgreSQL DDL (`01_extensions.sql` - `04_seed_embedding_models.sql`), schema docs, validator | Completed |
-| **Phase 3** | Synthetic Healthcare Dataset Pipeline | Generator for clinical notes, encounters, diagnoses, and multimodal metadata | Upcoming |
-| **Phase 4** | Embedding Generation & Ingestion Engine | Batch text embedding, CLIP image vector pipeline, pgvector storage | Upcoming |
-| **Phase 5** | Indexing Strategies & Hybrid Query Engine | Exact Flat, IVFFlat, HNSW implementation; Pre-filter & Post-filter SQL queries | Upcoming |
-| **Phase 6** | Security Architecture & Row-Level Security | PostgreSQL RLS policies, role simulation scripts, de-identification views | Upcoming |
-| **Phase 7** | Empirical Benchmarking Suite | Rigorous measurement of Recall@K, latency, throughput, index size, output tables/graphs | Upcoming |
-| **Phase 8** | Terminal CLI Demonstration & Documentation | Interactive headless CLI, reproducible run instructions, final academic summary | Upcoming |
+| **Phase 3** | Synthetic Healthcare Dataset Pipeline | Generator for clinical notes, encounters, diagnoses, and multimodal metadata | Completed |
+| **Phase 4** | Embedding Generation & Ingestion Engine | Batch text embedding, CLIP image vector pipeline, pgvector storage | Completed |
+| **Phase 5** | Indexing Strategies & Hybrid Query Engine | Exact Flat, IVFFlat, HNSW implementation; Pre-filter & Post-filter SQL queries | Completed |
+| **Phase 6** | Security Architecture & Row-Level Security | PostgreSQL RLS policies, role simulation scripts, de-identification views | Completed |
+| **Phase 7** | Empirical Benchmarking Suite | Rigorous measurement of Recall@K, latency, throughput, index size, output tables/graphs | Completed |
+| **Phase 8** | Terminal CLI Demonstration & Documentation | Interactive headless CLI, reproducible run instructions, final academic summary | Completed |
 
 > [!IMPORTANT]
 > In accordance with the academic guidelines, all benchmark data will be empirically measured through script runs rather than invented. No web UI or dashboard will be constructed.
