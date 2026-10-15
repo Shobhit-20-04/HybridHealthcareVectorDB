@@ -40,7 +40,8 @@ class DatabaseConfig:
             "port": self.port,
             "dbname": self.dbname,
             "user": self.user,
-            "sslmode": self.sslmode
+            "sslmode": self.sslmode,
+            "connect_timeout": 3
         }
         if self.password:
             params["password"] = self.password
@@ -57,11 +58,9 @@ class DatabaseConfig:
         pw_part = f":{self.password}" if self.password else ""
         return f"postgresql://{self.user}{pw_part}@{self.host}:{self.port}/{self.dbname}?sslmode={self.sslmode}"
 
-_config = DatabaseConfig()
-
 def get_db_config() -> DatabaseConfig:
-    """Returns the singleton DatabaseConfig instance."""
-    return _config
+    """Returns DatabaseConfig reflecting active environment variables."""
+    return DatabaseConfig()
 
 @contextmanager
 def get_connection(autocommit: bool = False):

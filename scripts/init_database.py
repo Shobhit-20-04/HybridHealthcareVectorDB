@@ -68,18 +68,39 @@ def run_migrations():
     cursor = conn.cursor()
     base_dir = Path(__file__).resolve().parent.parent
     sql_dir = base_dir / "sql"
-    migration_files = sorted(sql_dir.glob("*.sql"))
 
-    print(f"[+] Executing {len(migration_files)} migration files in order:")
-    for sql_file in migration_files:
-        print(f"    -> Applying {sql_file.name}...", end=" ", flush=True)
+    # Core schema migrations in deterministic dependency order
+    core_migrations = [
+        "01_extensions.sql",
+        "02_schema.sql",
+        "03_indexes.sql",
+        "04_seed_embedding_models.sql",
+        "06_security_rls.sql"
+    ]
+
+    print(f"[+] Executing {len(core_migrations)} core schema migrations in order:")
+    for migration_name in core_migrations:
+        sql_file = sql_dir / migration_name
+        if not sql_file.exists():
+            print(f"[!] Warning: Migration file {migration_name} not found, skipping.")
+            continue
+
+        print(f"    -> Applying {migration_name}...", end=" ", flush=True)
         with open(sql_file, "r", encoding="utf-8") as f:
             sql_content = f.read()
+
+        # Sanitize psql meta-commands (lines starting with backslash like \echo, \i, \gexec)
+        clean_lines = [
+            line for line in sql_content.splitlines() 
+            if not line.strip().startswith("\\")
+        ]
+        clean_sql = "\n".join(clean_lines)
+
         try:
-            cursor.execute(sql_content)
+            cursor.execute(clean_sql)
             print("DONE")
         except Exception as err:
-            print(f"FAILED!\n[!] Error applying {sql_file.name}: {err}")
+            print(f"FAILED!\n[!] Error applying {migration_name}: {err}")
             cursor.close()
             conn.close()
             sys.exit(1)

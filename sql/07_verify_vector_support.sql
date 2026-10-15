@@ -4,14 +4,9 @@
 -- =============================================================================
 -- Usage: psql -U postgres -d healthcare_vectordb -f sql/07_verify_vector_support.sql
 
-\echo '============================================================================='
-\echo '  RUNNING POSTGRESQL + PGVECTOR SYSTEM VERIFICATION'
-\echo '============================================================================='
-
 -- -----------------------------------------------------------------------------
 -- 1. Check Extension Registration & Version
 -- -----------------------------------------------------------------------------
-\echo '[*] Checking pgvector extension status in pg_extension...'
 SELECT extname, extversion 
 FROM pg_extension 
 WHERE extname = 'vector';
@@ -28,7 +23,6 @@ END $$;
 -- -----------------------------------------------------------------------------
 -- 2. Verify Vector Mathematical Operators
 -- -----------------------------------------------------------------------------
-\echo '[*] Validating vector distance metrics (<=> Cosine, <-> L2, <#> Inner Product)...'
 SELECT 
     '[1,0,0]'::vector <=> '[0,1,0]'::vector AS cosine_distance,
     '[1,0,0]'::vector <-> '[0,1,0]'::vector AS l2_distance,
@@ -37,7 +31,6 @@ SELECT
 -- -----------------------------------------------------------------------------
 -- 3. Verify All 9 Schema Tables
 -- -----------------------------------------------------------------------------
-\echo '[*] Verifying all 9 approved project tables in schema public...'
 SELECT 
     table_name,
     CASE 
@@ -55,7 +48,6 @@ ORDER BY table_name;
 -- -----------------------------------------------------------------------------
 -- 4. Verify Vector Column Dimensions
 -- -----------------------------------------------------------------------------
-\echo '[*] Verifying vector columns and dimension constraints...'
 SELECT 
     table_name, 
     column_name, 
@@ -71,7 +63,6 @@ WHERE c.table_schema = 'public'
 -- -----------------------------------------------------------------------------
 -- 5. Functional HNSW Index Test (Temporary Table)
 -- -----------------------------------------------------------------------------
-\echo '[*] Testing HNSW index creation and index scan on temporary test table...'
 CREATE TEMP TABLE _test_vector_ann (
     id SERIAL PRIMARY KEY,
     label TEXT,
@@ -95,7 +86,3 @@ ORDER BY embedding <=> '[0.9, 0.1, 0]'::vector
 LIMIT 1;
 
 DROP TABLE _test_vector_ann;
-
-\echo '============================================================================='
-\echo '  [V] ALL PGVECTOR AND RELATIONAL SCHEMA CHECKS COMPLETED SUCCESSFULLY.'
-\echo '============================================================================='
