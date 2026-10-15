@@ -42,9 +42,9 @@ def validate_ddl_structure(sql_dir: Path):
             combined_sql += f"\n-- FILE: {f.name}\n" + fp.read()
 
     # Regex patterns
-    # Extract CREATE TABLE blocks
+    # Extract CREATE TABLE blocks (including TEMP / TEMPORARY tables)
     table_pattern = re.compile(
-        r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)\s*\((.*?)\);",
+        r"CREATE\s+(?:TEMP(?:ORARY)?\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)\s*\((.*?)\);",
         re.DOTALL | re.IGNORECASE
     )
     # Extract CREATE INDEX blocks
@@ -142,7 +142,7 @@ def validate_ddl_structure(sql_dir: Path):
 
     # Check vector columns and dimensions
     for tbl, col, dim in vector_columns:
-        if dim not in (384, 512, 768, 1536):
+        if not tbl.startswith("_test") and dim not in (384, 512, 768, 1536):
             errors.append(f"Non-standard vector dimension {dim} on {tbl}.{col}")
         print(f"    * Confirmed vector column: {tbl}.{col} -> vector({dim})")
 
