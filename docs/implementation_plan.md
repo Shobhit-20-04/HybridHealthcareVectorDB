@@ -164,8 +164,8 @@ Because PostgreSQL is installed at `C:\Program Files\PostgreSQL\18`, `pgvector` 
 
 | Phase | Title | Scope | Status |
 |---|---|---|---|
-| **Phase 1** | Project Initialization & Environment Definition | Directory hierarchy, requirements, `.env.example`, `.gitignore`, architectural plan | **Current Phase** |
-| **Phase 2** | Database Configuration & Relational Schema | PostgreSQL DDL scripts (`01_schema.sql`, `02_indexes.sql`), connection pooler | Upcoming |
+| **Phase 1** | Project Initialization & Environment Definition | Directory hierarchy, requirements, `.env.example`, `.gitignore`, architectural plan | Completed |
+| **Phase 2** | Database Configuration & Relational Schema | PostgreSQL DDL (`01_extensions.sql` - `04_seed_embedding_models.sql`), schema docs, validator | Completed |
 | **Phase 3** | Synthetic Healthcare Dataset Pipeline | Generator for clinical notes, encounters, diagnoses, and multimodal metadata | Upcoming |
 | **Phase 4** | Embedding Generation & Ingestion Engine | Batch text embedding, CLIP image vector pipeline, pgvector storage | Upcoming |
 | **Phase 5** | Indexing Strategies & Hybrid Query Engine | Exact Flat, IVFFlat, HNSW implementation; Pre-filter & Post-filter SQL queries | Upcoming |

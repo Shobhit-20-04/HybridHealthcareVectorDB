@@ -35,10 +35,10 @@ D:\HybridHealthcareVectorDB\
 ├── README.md                 # Project documentation and architectural overview
 ├── database/                 # Database initialization, migration scripts, and connection pooler
 ├── sql/                      # PostgreSQL DDL, indexing, hybrid query, and RLS scripts
-│   ├── 01_schema.sql         # Relational tables, constraints, and vector column definitions
-│   ├── 02_indexes.sql        # B-tree, IVFFlat, and HNSW index creation scripts
-│   ├── 03_hybrid_queries.sql # Attribute-first, vector-first, and joint hybrid queries
-│   └── 04_security_rls.sql   # Role definitions and Row-Level Security policies
+│   ├── 01_extensions.sql     # Extension initialization (vector, uuid-ossp, pgcrypto)
+│   ├── 02_schema.sql         # Relational tables, constraints, and vector column definitions
+│   ├── 03_indexes.sql        # B-tree, JSONB GIN, and pgvector HNSW/IVFFlat index creation
+│   └── 04_seed_embedding_models.sql # Explicit model registry seeding (384-d, 512-d, 768-d)
 ├── src/                      # Source modules for embedding, retrieval, security, and benchmarking
 │   ├── embeddings/           # Text (sentence-transformers) and multimodal (CLIP) pipeline
 │   ├── retrieval/            # Query execution engines (exact, IVFFlat, HNSW, hybrid)
@@ -51,8 +51,12 @@ D:\HybridHealthcareVectorDB\
 ├── tests/                    # Automated unit, integration, and database test suites
 ├── results/                  # Empirical benchmark metrics, JSON outputs, and plotted charts
 ├── docs/                     # Architectural documentation, specs, and implementation plans
-│   └── implementation_plan.md# Detailed phased development roadmap
+│   ├── implementation_plan.md# Detailed phased development roadmap
+│   ├── schema_design.md      # Data dictionary, Mermaid ER diagram, and normalization rationale
+│   └── database_setup_guide.md# Windows prerequisite checks and pgvector setup instructions
 └── scripts/                  # Standalone administrative and execution scripts
+    ├── validate_sql.py       # Offline DDL and referential integrity validator
+    └── init_database.py      # Automated database migration runner
 ```
 
 ---
@@ -170,7 +174,7 @@ In strict compliance with academic standards:
 ## 8. Development Roadmap
 
 - [x] **Phase 1:** Project foundation, directory architecture, environment configuration, and implementation specification.
-- [ ] **Phase 2:** PostgreSQL schema design, DDL definitions, and connection pooling.
+- [x] **Phase 2:** PostgreSQL schema design, DDL definitions, pgvector indexing, and setup guides.
 - [ ] **Phase 3:** Synthetic healthcare dataset generator (encounters, notes, imaging metadata).
 - [ ] **Phase 4:** Dense embedding generation and batch ingestion pipeline.
 - [ ] **Phase 5:** Indexing implementation (Exact, IVFFlat, HNSW) and hybrid query engine.
