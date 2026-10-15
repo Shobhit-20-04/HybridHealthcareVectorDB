@@ -212,27 +212,26 @@ All benchmark metrics are directly measured on synthetic clinical datasets ($N =
 
 ---
 
-## 10. Reproducibility & Execution Commands
+## 10. Ingestion Pipeline & Execution Commands
 
 ```powershell
 # 1. Activate Virtual Environment
 .\.venv\Scripts\Activate.ps1
 
-# 2. Generate Synthetic Healthcare Cohort
-python src/synthetic_generator.py
+# 2. Generate & Sanitize Deterministic Synthetic Healthcare Data
+python scripts/generate_data.py --preset small --seed 42
 
-# 3. Ingest and Vectorize Embeddings
-python -m src.embeddings.ingest_embeddings
+# 3. Transactionally Load Data into PostgreSQL (with Check Constraints & FK Validation)
+python scripts/load_data.py --truncate
 
-# 4. Run Rigorous Empirical Benchmarks
-python -m src.benchmark.benchmark_engine
+# 4. Audit Live Table Counts and Manifest Synchronization
+python scripts/count_records.py
 
-# 5. Render Benchmark Visualization Charts
-python scripts/plot_benchmarks.py
+# 5. Run Database Referential & Invariant Integrity Audits
+python scripts/validate_ingestion.py
 
-# 6. Run Headless Command-Line RAG Query Demonstration
-python -m src.retrieval.cli_rag --query "dyspnea and chest discomfort" --department "Cardiology" --top_k 3
-
-# 7. Execute Automated Test Suite
+# 6. Run Complete Automated Test Suite (32 Ingestion & Vector Tests)
 pytest tests/ -v
 ```
+
+For detailed architectural specifications, presets, validation rules, and schema mappings, see [`docs/data_ingestion.md`](file:///D:/HybridHealthcareVectorDB/docs/data_ingestion.md).
