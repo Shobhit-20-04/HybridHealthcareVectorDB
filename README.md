@@ -227,16 +227,20 @@ python scripts/load_data.py --truncate
 # 4. Generate Dense Vector Embeddings & Store in pgvector (384-d, Cosine)
 python scripts/embed_documents.py --smoke-test
 
-# 5. Audit Live Table Counts and Manifest Synchronization
+# 5. Execute Exact Semantic Retrieval (Ground-Truth Flat Scan Baseline)
+python scripts/search_exact.py "progressive dyspnea on exertion" --top-k 5 --explain
+
+# 6. Audit Live Table Counts and Manifest Synchronization
 python scripts/count_records.py
 
-# 6. Run Database Referential & Invariant Integrity Audits
+# 7. Run Database Referential & Invariant Integrity Audits
 python scripts/validate_ingestion.py
 
-# 7. Run Complete Automated Test Suite (40 Unit, Ingestion & Embedding Tests)
+# 8. Run Complete Automated Test Suite (47 Unit, Ingestion, Embedding & Retrieval Tests)
 pytest tests/ -v
 ```
 
 For detailed architectural specifications:
 - Data Ingestion & Sanitization: [`docs/data_ingestion.md`](file:///D:/HybridHealthcareVectorDB/docs/data_ingestion.md)
 - Document Chunking & Vector Storage: [`docs/embedding_pipeline.md`](file:///D:/HybridHealthcareVectorDB/docs/embedding_pipeline.md)
+- Ground-Truth Exact Retrieval Baseline: [`docs/exact_similarity_search.md`](file:///D:/HybridHealthcareVectorDB/docs/exact_similarity_search.md)
