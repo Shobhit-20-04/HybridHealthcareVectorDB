@@ -52,6 +52,29 @@ class DatabaseConfig:
         """Returns sanitized connection string masking password for logs/diagnostics."""
         return f"postgresql://{self.user}:***@{self.host}:{self.port}/{self.dbname}?sslmode={self.sslmode}"
 
+    def safe_role_connection_string(self, user: str) -> str:
+        """Returns sanitized connection string for a specific role user."""
+        return f"postgresql://{user}:***@{self.host}:{self.port}/{self.dbname}?sslmode={self.sslmode}"
+
+    def get_role_credentials(self, role: str) -> tuple[str, str]:
+        """Resolves (username, password) for a specified clinical role."""
+        role_map = {
+            "clinical_admin": ("DB_USER_ADMIN", "DB_PASS_ADMIN", "user_admin", "Admin_Secure_Pass_2026!"),
+            "admin": ("DB_USER_ADMIN", "DB_PASS_ADMIN", "user_admin", "Admin_Secure_Pass_2026!"),
+            "attending_physician": ("DB_USER_PHYSICIAN", "DB_PASS_PHYSICIAN", "user_physician", "Physician_Secure_Pass_2026!"),
+            "physician": ("DB_USER_PHYSICIAN", "DB_PASS_PHYSICIAN", "user_physician", "Physician_Secure_Pass_2026!"),
+            "radiologist": ("DB_USER_RADIOLOGIST", "DB_PASS_RADIOLOGIST", "user_radiologist", "Radiologist_Secure_Pass_2026!"),
+            "clinical_researcher": ("DB_USER_RESEARCHER", "DB_PASS_RESEARCHER", "user_researcher", "Researcher_Secure_Pass_2026!"),
+            "researcher": ("DB_USER_RESEARCHER", "DB_PASS_RESEARCHER", "user_researcher", "Researcher_Secure_Pass_2026!")
+        }
+        entry = role_map.get(role.lower())
+        if entry:
+            u_env, p_env, u_def, p_def = entry
+            user = os.getenv(u_env, u_def)
+            password = os.getenv(p_env, p_def)
+            return user, password
+        return self.user, self.password
+
     @property
     def dsn(self) -> str:
         """Standard PostgreSQL DSN string."""
@@ -100,6 +123,63 @@ def get_cursor(autocommit: bool = False):
     with get_connection(autocommit=autocommit) as conn:
         with conn.cursor() as cur:
             yield cur
+
+@contextmanager
+def get_role_connection(
+    role: str,
+    department: Optional[str] = None,
+    direct_login: bool = True,
+    autocommit: bool = False
+):
+    """
+    Context manager providing a database connection scoped to a specific clinical role.
+    If direct_login=True, connects directly using the dedicated test user credentials.
+    If direct_login=False or if direct connection fails, connects as DB_USER and applies SET ROLE.
+    Configures session variables (e.g. app.clinician_dept) inside an active transaction.
+    """
+    import psycopg
+    from pgvector.psycopg import register_vector
+
+    cfg = get_db_config()
+    role_user, role_pass = cfg.get_role_credentials(role)
+
+    conn = None
+    try:
+        if direct_login:
+            params = {
+                "host": cfg.host,
+                "port": cfg.port,
+                "dbname": cfg.dbname,
+                "user": role_user,
+                "password": role_pass,
+                "sslmode": cfg.sslmode,
+                "connect_timeout": 3
+            }
+            conn = psycopg.connect(**params, autocommit=autocommit)
+        else:
+            conn = psycopg.connect(**cfg.connection_params, autocommit=autocommit)
+            with conn.cursor() as cur:
+                cur.execute(f"SET ROLE {role};")
+
+        try:
+            register_vector(conn)
+        except Exception:
+            pass
+
+        if department:
+            with conn.cursor() as cur:
+                cur.execute(f"SET LOCAL app.clinician_dept = '{department}';")
+
+        yield conn
+        if not autocommit and conn and not conn.closed:
+            conn.commit()
+    except Exception:
+        if conn and not conn.closed and not autocommit:
+            conn.rollback()
+        raise
+    finally:
+        if conn and not conn.closed:
+            conn.close()
 
 def test_connection() -> Dict[str, Any]:
     """

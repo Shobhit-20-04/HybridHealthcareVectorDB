@@ -236,7 +236,7 @@ python scripts/count_records.py
 # 7. Run Database Referential & Invariant Integrity Audits
 python scripts/validate_ingestion.py
 
-# 8. Run Complete Automated Test Suite (77 Unit, Ingestion, Embedding, Multimodal & Hybrid Tests)
+# 8. Run Complete Automated Test Suite (90 Unit, Ingestion, Retrieval, Multimodal & Security Tests)
 pytest tests/ -v
 
 # 9. Execute Controlled Vector-Index Empirical Benchmark (Flat vs HNSW vs IVFFlat)
@@ -256,6 +256,9 @@ python scripts/search_multimodal.py --image "data/synthetic/images/dx/syn-img-00
 
 # 14. Execute Cross-Modal Text-to-Image Semantic Search (Aligned CLIP Latent Space)
 python scripts/search_multimodal.py --text "Chest CT showing bilateral infiltrates" --body-site Chest --top-k 5
+
+# 15. Verify Database-Level Security, Least-Privilege Roles & Row-Level Security
+python scripts/verify_security.py
 ```
 
 For detailed architectural specifications:
@@ -265,7 +268,8 @@ For detailed architectural specifications:
 - Controlled Vector-Index Benchmark (Flat vs HNSW vs IVFFlat): [`docs/vector_index_experiments.md`](file:///D:/HybridHealthcareVectorDB/docs/vector_index_experiments.md)
 - Hybrid Relational–Vector Query Execution & Selectivity: [`docs/hybrid_retrieval.md`](file:///D:/HybridHealthcareVectorDB/docs/hybrid_retrieval.md)
 - Multimodal Storage, Vector Alignment & Cross-Modal Retrieval: [`docs/multimodal_retrieval.md`](file:///D:/HybridHealthcareVectorDB/docs/multimodal_retrieval.md)
-- Multimodal SQL Migration & Query Templates: [`sql/11_multimodal_schema_and_retrieval.sql`](file:///D:/HybridHealthcareVectorDB/sql/11_multimodal_schema_and_retrieval.sql)
+- Database Security, Roles & Row-Level Security (RLS): [`docs/database_security.md`](file:///D:/HybridHealthcareVectorDB/docs/database_security.md)
+- Security DDL & RLS Migration: [`sql/12_database_security_and_roles.sql`](file:///D:/HybridHealthcareVectorDB/sql/12_database_security_and_roles.sql)
 
 
 
