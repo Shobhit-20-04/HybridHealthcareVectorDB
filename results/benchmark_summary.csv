@@ -1,17 +1,17 @@
 # Benchmark Summary: Windows-10-10.0.26300-SP0 | PostgreSQL PostgreSQL | pgvector 0.8.6
 category,configuration,index_type,build_time_ms,disk_size_pretty,mean_latency_ms,stddev_ms,p50_latency_ms,p90_latency_ms,p95_latency_ms,p99_latency_ms,min_latency_ms,max_latency_ms,cold_p50_ms,throughput_qps,distance_recall,id_recall,noise_flag
-pure_vector,Exact Flat (Ground Truth Baseline),Flat,0.0,0 bytes,10.797,0.358,10.799,11.191,11.526,11.988,10.212,11.988,10.552,92.62,1.0,1.0,STABLE
-pure_vector,"HNSW (m=16, ef_s=10)",HNSW,55.449,184 kB,11.256,0.379,11.189,11.708,11.937,12.0,10.473,12.0,11.341,88.84,1.0,1.0,STABLE
-pure_vector,"HNSW (m=16, ef_s=40)",HNSW,55.449,184 kB,11.531,0.509,11.384,12.205,12.354,13.554,10.68,13.554,11.394,86.73,1.0,1.0,STABLE
-pure_vector,"HNSW (m=16, ef_s=100)",HNSW,55.449,184 kB,11.225,0.304,11.215,11.516,11.682,12.331,10.537,12.331,11.387,89.09,1.0,1.0,STABLE
-pure_vector,"IVFFlat (lists=25, probes=1)",IVFFlat,169.2,1472 kB,11.352,0.45,11.272,11.785,11.844,13.409,10.497,13.409,11.478,88.09,1.0,1.0,STABLE
-pure_vector,"IVFFlat (lists=25, probes=5)",IVFFlat,169.2,1472 kB,11.204,0.308,11.141,11.574,11.609,12.347,10.69,12.347,11.228,89.25,1.0,1.0,STABLE
-pure_vector,"IVFFlat (lists=25, probes=10)",IVFFlat,169.2,1472 kB,11.224,0.319,11.256,11.585,11.614,12.165,10.634,12.165,11.41,89.09,1.0,1.0,STABLE
-hybrid_selectivity,Exact Flat [Low Selectivity (Broad Filter ~70%)],exact_flat,0.0,-,103.091,55.508,59.146,168.251,168.896,168.896,50.544,168.896,-,9.7,1.0,1.0,HIGH_VARIANCE
-hybrid_selectivity,HNSW Planner Choice [Low Selectivity (Broad Filter ~70%)],planner_choice,0.0,-,68.197,37.868,52.574,155.986,166.219,166.219,51.111,166.219,-,14.66,1.0,1.0,HIGH_VARIANCE
-hybrid_selectivity,Exact Flat [Moderate Selectivity (~20%)],exact_flat,0.0,-,57.275,26.26,49.777,57.355,151.606,151.606,47.823,151.606,-,17.46,1.0,1.0,STABLE
-hybrid_selectivity,HNSW Planner Choice [Moderate Selectivity (~20%)],planner_choice,0.0,-,77.588,46.473,51.13,153.409,156.112,156.112,48.9,156.112,-,12.89,1.0,1.0,HIGH_VARIANCE
-hybrid_selectivity,Exact Flat [High Selectivity / Restrictive (~1.5%)],exact_flat,0.0,-,69.93,42.602,49.944,153.153,154.207,154.207,46.123,154.207,-,14.3,1.0,1.0,HIGH_VARIANCE
-hybrid_selectivity,HNSW Planner Choice [High Selectivity / Restrictive (~1.5%)],planner_choice,0.0,-,71.521,45.174,50.224,160.2,163.698,163.698,46.92,163.698,-,13.98,1.0,1.0,HIGH_VARIANCE
-hybrid_selectivity,Exact Flat [Zero-Match / Ultra-Restrictive (0%)],exact_flat,0.0,-,61.147,35.876,46.704,148.377,150.399,150.399,45.435,150.399,-,16.35,1.0,1.0,HIGH_VARIANCE
-hybrid_selectivity,HNSW Planner Choice [Zero-Match / Ultra-Restrictive (0%)],planner_choice,0.0,-,57.062,29.146,49.487,52.814,162.22,162.22,46.823,162.22,-,17.52,1.0,1.0,HIGH_VARIANCE
+pure_vector,Exact Flat (Ground Truth Baseline),Flat,0.0,0 bytes,10.649,0.287,10.649,10.976,11.234,11.391,9.982,11.391,10.389,93.91,1.0,1.0,STABLE
+pure_vector,"HNSW (m=16, ef_s=10)",HNSW,59.308,184 kB,11.48,1.094,11.276,11.867,12.336,18.175,10.684,18.175,11.11,87.1,1.0,1.0,STABLE
+pure_vector,"HNSW (m=16, ef_s=40)",HNSW,59.308,184 kB,11.392,0.635,11.3,11.831,11.953,14.89,10.633,14.89,11.296,87.78,1.0,1.0,STABLE
+pure_vector,"HNSW (m=16, ef_s=100)",HNSW,59.308,184 kB,11.329,0.334,11.289,11.736,11.869,12.67,10.616,12.67,11.342,88.27,1.0,1.0,STABLE
+pure_vector,"IVFFlat (lists=25, probes=1)",IVFFlat,47.245,1472 kB,11.284,0.82,11.18,11.684,11.724,16.264,10.533,16.264,11.297,88.62,1.0,1.0,STABLE
+pure_vector,"IVFFlat (lists=25, probes=5)",IVFFlat,47.245,1472 kB,11.259,0.221,11.231,11.582,11.632,11.754,10.823,11.754,11.234,88.81,1.0,1.0,STABLE
+pure_vector,"IVFFlat (lists=25, probes=10)",IVFFlat,47.245,1472 kB,11.292,0.312,11.283,11.662,11.819,11.976,10.5,11.976,11.234,88.56,1.0,1.0,STABLE
+hybrid_selectivity,Exact Flat [Low Selectivity (Broad Filter ~70%)],exact_flat,0.0,-,80.653,48.294,51.969,157.663,165.122,165.122,50.403,165.122,-,12.4,1.0,1.0,HIGH_VARIANCE
+hybrid_selectivity,HNSW Planner Choice [Low Selectivity (Broad Filter ~70%)],planner_choice,0.0,-,82.696,51.174,53.094,167.181,168.136,168.136,50.134,168.136,-,12.09,1.0,1.0,HIGH_VARIANCE
+hybrid_selectivity,Exact Flat [Moderate Selectivity (~20%)],exact_flat,0.0,-,64.19,35.1,50.701,150.081,150.629,150.629,47.362,150.629,-,15.58,1.0,1.0,HIGH_VARIANCE
+hybrid_selectivity,HNSW Planner Choice [Moderate Selectivity (~20%)],planner_choice,0.0,-,64.54,38.261,49.283,148.488,167.735,167.735,46.37,167.735,-,15.49,1.0,1.0,HIGH_VARIANCE
+hybrid_selectivity,Exact Flat [High Selectivity / Restrictive (~1.5%)],exact_flat,0.0,-,77.14,48.842,49.297,158.124,160.949,160.949,47.35,160.949,-,12.96,1.0,1.0,HIGH_VARIANCE
+hybrid_selectivity,HNSW Planner Choice [High Selectivity / Restrictive (~1.5%)],planner_choice,0.0,-,77.712,48.564,50.006,155.222,162.341,162.341,45.937,162.341,-,12.87,1.0,1.0,HIGH_VARIANCE
+hybrid_selectivity,Exact Flat [Zero-Match / Ultra-Restrictive (0%)],exact_flat,0.0,-,75.718,49.143,47.705,155.527,155.98,155.98,45.647,155.98,-,13.21,1.0,1.0,HIGH_VARIANCE
+hybrid_selectivity,HNSW Planner Choice [Zero-Match / Ultra-Restrictive (0%)],planner_choice,0.0,-,69.417,45.41,48.073,152.321,169.32,169.32,44.641,169.32,-,14.41,1.0,1.0,HIGH_VARIANCE

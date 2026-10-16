@@ -3,41 +3,41 @@
 <line x1="80" y1="360.0" x2="870" y2="360.0" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
 <text x="68" y="364.0" text-anchor="end" font-size="11" fill="#475569">0.00</text>
 <line x1="80" y1="300.0" x2="870" y2="300.0" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-<text x="68" y="304.0" text-anchor="end" font-size="11" fill="#475569">23.71</text>
+<text x="68" y="304.0" text-anchor="end" font-size="11" fill="#475569">19.02</text>
 <line x1="80" y1="240.0" x2="870" y2="240.0" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-<text x="68" y="244.0" text-anchor="end" font-size="11" fill="#475569">47.42</text>
+<text x="68" y="244.0" text-anchor="end" font-size="11" fill="#475569">38.04</text>
 <line x1="80" y1="180.0" x2="870" y2="180.0" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-<text x="68" y="184.0" text-anchor="end" font-size="11" fill="#475569">71.13</text>
+<text x="68" y="184.0" text-anchor="end" font-size="11" fill="#475569">57.06</text>
 <line x1="80" y1="120.0" x2="870" y2="120.0" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-<text x="68" y="124.0" text-anchor="end" font-size="11" fill="#475569">94.84</text>
+<text x="68" y="124.0" text-anchor="end" font-size="11" fill="#475569">76.08</text>
 <line x1="80" y1="60.0" x2="870" y2="60.0" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>
-<text x="68" y="64.0" text-anchor="end" font-size="11" fill="#475569">118.55</text>
+<text x="68" y="64.0" text-anchor="end" font-size="11" fill="#475569">95.10</text>
 <line x1="80" y1="360" x2="870" y2="360" stroke="#94a3b8" stroke-width="1.5"/>
 <line x1="80" y1="60" x2="80" y2="360" stroke="#94a3b8" stroke-width="1.5"/>
 <text transform="rotate(-90)" x="-210.0" y="32" text-anchor="middle" font-size="12" font-weight="bold" fill="#2563eb">Query Latency (ms)</text>
-<rect x="109.4" y="99.1" width="40.0" height="260.9" fill="#3b82f6" rx="3" ry="3"/>
-<text x="129.4" y="93.1" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">103.09</text>
+<rect x="109.4" y="105.6" width="40.0" height="254.4" fill="#3b82f6" rx="3" ry="3"/>
+<text x="129.4" y="99.6" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">80.65</text>
 <text transform="rotate(25, 129.4, 378)" x="129.4" y="378" text-anchor="start" font-size="10" fill="#334155">Low Selectivity (Broad Filter ~70%) (44.78%)</text>
-<rect x="208.1" y="187.4" width="40.0" height="172.6" fill="#3b82f6" rx="3" ry="3"/>
-<text x="228.1" y="181.4" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">68.20</text>
+<rect x="208.1" y="99.1" width="40.0" height="260.9" fill="#3b82f6" rx="3" ry="3"/>
+<text x="228.1" y="93.1" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">82.70</text>
 <text transform="rotate(25, 228.1, 378)" x="228.1" y="378" text-anchor="start" font-size="10" fill="#334155">Low Selectivity (Broad Filter ~70%) (44.78%)</text>
-<rect x="306.9" y="215.1" width="40.0" height="144.9" fill="#3b82f6" rx="3" ry="3"/>
-<text x="326.9" y="209.1" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">57.27</text>
+<rect x="306.9" y="157.5" width="40.0" height="202.5" fill="#3b82f6" rx="3" ry="3"/>
+<text x="326.9" y="151.5" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">64.19</text>
 <text transform="rotate(25, 326.9, 378)" x="326.9" y="378" text-anchor="start" font-size="10" fill="#334155">Moderate Selectivity (~20%) (10.57%)</text>
-<rect x="405.6" y="163.7" width="40.0" height="196.3" fill="#3b82f6" rx="3" ry="3"/>
-<text x="425.6" y="157.7" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">77.59</text>
+<rect x="405.6" y="156.4" width="40.0" height="203.6" fill="#3b82f6" rx="3" ry="3"/>
+<text x="425.6" y="150.4" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">64.54</text>
 <text transform="rotate(25, 425.6, 378)" x="425.6" y="378" text-anchor="start" font-size="10" fill="#334155">Moderate Selectivity (~20%) (10.57%)</text>
-<rect x="504.4" y="183.0" width="40.0" height="177.0" fill="#3b82f6" rx="3" ry="3"/>
-<text x="524.4" y="177.0" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">69.93</text>
+<rect x="504.4" y="116.7" width="40.0" height="243.3" fill="#3b82f6" rx="3" ry="3"/>
+<text x="524.4" y="110.7" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">77.14</text>
 <text transform="rotate(25, 524.4, 378)" x="524.4" y="378" text-anchor="start" font-size="10" fill="#334155">High Selectivity / Restrictive (~1.5%) (1.0%)</text>
-<rect x="603.1" y="179.0" width="40.0" height="181.0" fill="#3b82f6" rx="3" ry="3"/>
-<text x="623.1" y="173.0" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">71.52</text>
+<rect x="603.1" y="114.9" width="40.0" height="245.1" fill="#3b82f6" rx="3" ry="3"/>
+<text x="623.1" y="108.9" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">77.71</text>
 <text transform="rotate(25, 623.1, 378)" x="623.1" y="378" text-anchor="start" font-size="10" fill="#334155">High Selectivity / Restrictive (~1.5%) (1.0%)</text>
-<rect x="701.9" y="205.3" width="40.0" height="154.7" fill="#3b82f6" rx="3" ry="3"/>
-<text x="721.9" y="199.3" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">61.15</text>
+<rect x="701.9" y="121.1" width="40.0" height="238.9" fill="#3b82f6" rx="3" ry="3"/>
+<text x="721.9" y="115.1" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">75.72</text>
 <text transform="rotate(25, 721.9, 378)" x="721.9" y="378" text-anchor="start" font-size="10" fill="#334155">Zero-Match / Ultra-Restrictive (0%) (0.0%)</text>
-<rect x="800.6" y="215.6" width="40.0" height="144.4" fill="#3b82f6" rx="3" ry="3"/>
-<text x="820.6" y="209.6" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">57.06</text>
+<rect x="800.6" y="141.0" width="40.0" height="219.0" fill="#3b82f6" rx="3" ry="3"/>
+<text x="820.6" y="135.0" text-anchor="middle" font-size="11" font-weight="bold" fill="#1e3a8a">69.42</text>
 <text transform="rotate(25, 820.6, 378)" x="820.6" y="378" text-anchor="start" font-size="10" fill="#334155">Zero-Match / Ultra-Restrictive (0%) (0.0%)</text>
 <rect x="100" y="425" width="14" height="14" fill="#3b82f6" rx="2"/>
 <text x="120" y="437" font-size="11" fill="#334155">Query Latency (ms)</text>

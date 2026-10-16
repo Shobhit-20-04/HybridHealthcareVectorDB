@@ -287,6 +287,8 @@ For detailed architectural specifications:
 - Security DDL & RLS Migration: [`sql/12_database_security_and_roles.sql`](file:///D:/HybridHealthcareVectorDB/sql/12_database_security_and_roles.sql)
 - Reproducible Database Benchmarking Engine & Telemetry: [`docs/benchmarking_suite.md`](file:///D:/HybridHealthcareVectorDB/docs/benchmarking_suite.md)
 - Command-Line Clinical RAG & Decoupled Evaluation Suite: [`docs/rag_demonstration.md`](file:///D:/HybridHealthcareVectorDB/docs/rag_demonstration.md)
+- Demonstration & Reviewer Checklist: [`docs/demo_checklist.md`](file:///D:/HybridHealthcareVectorDB/docs/demo_checklist.md)
+- Final Academic Research Report: [`docs/final_report.md`](file:///D:/HybridHealthcareVectorDB/docs/final_report.md)
 
 
 
