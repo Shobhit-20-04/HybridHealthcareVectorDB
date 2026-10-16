@@ -236,7 +236,7 @@ python scripts/count_records.py
 # 7. Run Database Referential & Invariant Integrity Audits
 python scripts/validate_ingestion.py
 
-# 8. Run Complete Automated Test Suite (98 Unit, Ingestion, Retrieval, Multimodal, Security & Benchmark Tests)
+# 8. Run Complete Automated Test Suite (106 Unit, Ingestion, Retrieval, Multimodal, Security, Benchmark & RAG Tests)
 pytest tests/ -v
 
 # 9. Execute Master Unified Reproducible Database Benchmark Suite (Flat vs HNSW vs IVFFlat + 4 Hybrid Tiers + Cold/Warm Cache)
@@ -245,25 +245,34 @@ python scripts/run_benchmarks.py --iterations 3 --warmup 1 --plot
 # 10. Render Pure-Python High-Resolution SVG Comparison Charts
 python scripts/plot_benchmarks.py
 
-# 11. Execute Controlled Vector-Index Empirical Benchmark (Flat vs HNSW vs IVFFlat)
+# 11. Run Command-Line Clinical RAG Demonstration (Grounded Retrieval + Decoupled Evaluation)
+python scripts/run_rag_demo.py --sample-suite
+
+# 12. Run Ad-Hoc Clinical RAG Query with Department Filtering and Evaluation
+python scripts/run_rag_demo.py "chest pain and dyspnea on exertion" --department Cardiology --evaluate
+
+# 13. Run Clinical RAG in Retrieval-Only Mode (Generation Skipped, Passages Preserved)
+python scripts/run_rag_demo.py "hypertension and elevated blood pressure" --provider retrieval-only --evaluate
+
+# 14. Execute Controlled Vector-Index Empirical Benchmark (Flat vs HNSW vs IVFFlat)
 python scripts/run_index_experiments.py --top-k 10 --iterations 3
 
-# 12. Execute Ad-Hoc Hybrid Relational–Vector Query (with Department, Age, Document Type Filters)
+# 15. Execute Ad-Hoc Hybrid Relational–Vector Query (with Department, Age, Document Type Filters)
 python scripts/search_hybrid.py "shortness of breath and chest pain" --department Cardiology --document-type discharge_summary --min-age 40 --top-k 5 --explain
 
-# 13. Run Multi-Selectivity Controlled Hybrid Benchmark (Low, Moderate, High, Zero-Match Tiers)
+# 16. Run Multi-Selectivity Controlled Hybrid Benchmark (Low, Moderate, High, Zero-Match Tiers)
 python scripts/run_hybrid_experiments.py --top-k 10 --iterations 3
 
-# 14. Synchronize Synthetic Imaging Assets & Generate 512-d Multimodal Embeddings
+# 17. Synchronize Synthetic Imaging Assets & Generate 512-d Multimodal Embeddings
 python scripts/embed_images.py --smoke-test
 
-# 15. Execute Image-to-Image Visual Similarity Search (Ranked by Cosine Distance)
+# 18. Execute Image-to-Image Visual Similarity Search (Ranked by Cosine Distance)
 python scripts/search_multimodal.py --image "data/synthetic/images/dx/syn-img-0020-01-01.png" --modality DX --top-k 5 --explain
 
-# 16. Execute Cross-Modal Text-to-Image Semantic Search (Aligned CLIP Latent Space)
+# 19. Execute Cross-Modal Text-to-Image Semantic Search (Aligned CLIP Latent Space)
 python scripts/search_multimodal.py --text "Chest CT showing bilateral infiltrates" --body-site Chest --top-k 5
 
-# 17. Verify Database-Level Security, Least-Privilege Roles & Row-Level Security
+# 20. Verify Database-Level Security, Least-Privilege Roles & Row-Level Security
 python scripts/verify_security.py
 ```
 
@@ -277,6 +286,7 @@ For detailed architectural specifications:
 - Database Security, Roles & Row-Level Security (RLS): [`docs/database_security.md`](file:///D:/HybridHealthcareVectorDB/docs/database_security.md)
 - Security DDL & RLS Migration: [`sql/12_database_security_and_roles.sql`](file:///D:/HybridHealthcareVectorDB/sql/12_database_security_and_roles.sql)
 - Reproducible Database Benchmarking Engine & Telemetry: [`docs/benchmarking_suite.md`](file:///D:/HybridHealthcareVectorDB/docs/benchmarking_suite.md)
+- Command-Line Clinical RAG & Decoupled Evaluation Suite: [`docs/rag_demonstration.md`](file:///D:/HybridHealthcareVectorDB/docs/rag_demonstration.md)
 
 
 
