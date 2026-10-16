@@ -236,28 +236,34 @@ python scripts/count_records.py
 # 7. Run Database Referential & Invariant Integrity Audits
 python scripts/validate_ingestion.py
 
-# 8. Run Complete Automated Test Suite (90 Unit, Ingestion, Retrieval, Multimodal & Security Tests)
+# 8. Run Complete Automated Test Suite (98 Unit, Ingestion, Retrieval, Multimodal, Security & Benchmark Tests)
 pytest tests/ -v
 
-# 9. Execute Controlled Vector-Index Empirical Benchmark (Flat vs HNSW vs IVFFlat)
+# 9. Execute Master Unified Reproducible Database Benchmark Suite (Flat vs HNSW vs IVFFlat + 4 Hybrid Tiers + Cold/Warm Cache)
+python scripts/run_benchmarks.py --iterations 3 --warmup 1 --plot
+
+# 10. Render Pure-Python High-Resolution SVG Comparison Charts
+python scripts/plot_benchmarks.py
+
+# 11. Execute Controlled Vector-Index Empirical Benchmark (Flat vs HNSW vs IVFFlat)
 python scripts/run_index_experiments.py --top-k 10 --iterations 3
 
-# 10. Execute Ad-Hoc Hybrid Relational–Vector Query (with Department, Age, Document Type Filters)
+# 12. Execute Ad-Hoc Hybrid Relational–Vector Query (with Department, Age, Document Type Filters)
 python scripts/search_hybrid.py "shortness of breath and chest pain" --department Cardiology --document-type discharge_summary --min-age 40 --top-k 5 --explain
 
-# 11. Run Multi-Selectivity Controlled Hybrid Benchmark (Low, Moderate, High, Zero-Match Tiers)
+# 13. Run Multi-Selectivity Controlled Hybrid Benchmark (Low, Moderate, High, Zero-Match Tiers)
 python scripts/run_hybrid_experiments.py --top-k 10 --iterations 3
 
-# 12. Synchronize Synthetic Imaging Assets & Generate 512-d Multimodal Embeddings
+# 14. Synchronize Synthetic Imaging Assets & Generate 512-d Multimodal Embeddings
 python scripts/embed_images.py --smoke-test
 
-# 13. Execute Image-to-Image Visual Similarity Search (Ranked by Cosine Distance)
+# 15. Execute Image-to-Image Visual Similarity Search (Ranked by Cosine Distance)
 python scripts/search_multimodal.py --image "data/synthetic/images/dx/syn-img-0020-01-01.png" --modality DX --top-k 5 --explain
 
-# 14. Execute Cross-Modal Text-to-Image Semantic Search (Aligned CLIP Latent Space)
+# 16. Execute Cross-Modal Text-to-Image Semantic Search (Aligned CLIP Latent Space)
 python scripts/search_multimodal.py --text "Chest CT showing bilateral infiltrates" --body-site Chest --top-k 5
 
-# 15. Verify Database-Level Security, Least-Privilege Roles & Row-Level Security
+# 17. Verify Database-Level Security, Least-Privilege Roles & Row-Level Security
 python scripts/verify_security.py
 ```
 
@@ -270,6 +276,7 @@ For detailed architectural specifications:
 - Multimodal Storage, Vector Alignment & Cross-Modal Retrieval: [`docs/multimodal_retrieval.md`](file:///D:/HybridHealthcareVectorDB/docs/multimodal_retrieval.md)
 - Database Security, Roles & Row-Level Security (RLS): [`docs/database_security.md`](file:///D:/HybridHealthcareVectorDB/docs/database_security.md)
 - Security DDL & RLS Migration: [`sql/12_database_security_and_roles.sql`](file:///D:/HybridHealthcareVectorDB/sql/12_database_security_and_roles.sql)
+- Reproducible Database Benchmarking Engine & Telemetry: [`docs/benchmarking_suite.md`](file:///D:/HybridHealthcareVectorDB/docs/benchmarking_suite.md)
 
 
 

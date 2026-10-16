@@ -84,11 +84,12 @@ class HybridSelectivityExperimentRunner:
     def __init__(
         self,
         model_id: str = "sentence-transformers/all-MiniLM-L6-v2",
-        expected_dimension: int = 384
+        expected_dimension: int = 384,
+        embedder: Optional[TextEmbedder] = None
     ):
         self.model_id = model_id
         self.expected_dimension = expected_dimension
-        self.embedder = TextEmbedder(model_name=model_id, dimension=expected_dimension)
+        self.embedder = embedder or TextEmbedder(model_name=model_id, dimension=expected_dimension)
         self.search_engine = PostgresHybridSearchEngine(
             model_id=model_id,
             expected_dimension=expected_dimension,

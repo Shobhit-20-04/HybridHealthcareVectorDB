@@ -64,6 +64,10 @@ results/*
 !results/.gitkeep
 !results/vector_index_benchmark.json
 !results/hybrid_query_benchmark.json
+!results/benchmark_summary.md
+!results/benchmark_summary.csv
+!results/benchmark_report.json
+!results/*.svg
 
 # OS generated files
 Thumbs.db
