@@ -113,18 +113,33 @@ def run_authorization_tests():
     # TEST 2: Attending Physician Departmental Scoping (Positive)
     # -------------------------------------------------------------------------
     try:
+        # Resolve true ground-truth Cardiology counts from database
+        with get_role_connection("clinical_admin", direct_login=True) as a_conn:
+            with a_conn.cursor() as a_cur:
+                a_cur.execute("""
+                    SELECT COUNT(DISTINCT cd.document_id), COUNT(ce.embedding_id)
+                    FROM clinical_documents cd
+                    JOIN encounters e ON cd.encounter_id = e.encounter_id
+                    JOIN document_chunks dc ON cd.document_id = dc.document_id
+                    JOIN chunk_embeddings ce ON dc.chunk_id = ce.chunk_id
+                    WHERE e.department = 'Cardiology';
+                """)
+                exp_cardio_docs, exp_cardio_chunks = a_cur.fetchone()
+
         with get_role_connection("attending_physician", department="Cardiology", direct_login=True) as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT COUNT(*) FROM clinical_documents;")
                 n_cardio_docs = cur.fetchone()[0]
                 cur.execute("SELECT COUNT(*) FROM chunk_embeddings;")
                 n_cardio_chunks = cur.fetchone()[0]
+
+        is_scoped = (n_cardio_docs == exp_cardio_docs and n_cardio_chunks == exp_cardio_chunks and n_cardio_docs > 0)
         test_results.append((
             "Physician Department Scoping (Cardio)",
             "attending_physician",
             "Positive",
-            n_cardio_docs == 64 and n_cardio_chunks == 85,
-            f"Visible: {n_cardio_docs} docs, {n_cardio_chunks} chunks (Expected 64/85)"
+            is_scoped,
+            f"Visible: {n_cardio_docs} docs, {n_cardio_chunks} chunks (Expected {exp_cardio_docs}/{exp_cardio_chunks})"
         ))
     except Exception as e:
         test_results.append(("Physician Department Scoping", "attending_physician", "Positive", False, str(e)))
@@ -189,18 +204,27 @@ def run_authorization_tests():
     # TEST 5: Radiologist Radiology Notes Access (Positive)
     # -------------------------------------------------------------------------
     try:
+        with get_role_connection("clinical_admin", direct_login=True) as a_conn:
+            with a_conn.cursor() as a_cur:
+                a_cur.execute("SELECT COUNT(*) FROM clinical_documents WHERE document_type = 'radiology_report';")
+                exp_rad_docs = a_cur.fetchone()[0]
+                a_cur.execute("SELECT COUNT(*) FROM medical_images;")
+                exp_images = a_cur.fetchone()[0]
+
         with get_role_connection("radiologist", direct_login=True) as conn:
             with conn.cursor() as cur:
                 cur.execute("SELECT COUNT(*) FROM clinical_documents;")
                 rad_docs = cur.fetchone()[0]
                 cur.execute("SELECT COUNT(*) FROM medical_images;")
                 rad_images = cur.fetchone()[0]
+
+        is_rad_valid = (rad_docs == exp_rad_docs and rad_images == exp_images and rad_docs > 0 and rad_images > 0)
         test_results.append((
             "Radiologist Imaging & Reports Access",
             "radiologist",
             "Positive",
-            rad_docs > 0 and rad_images == 227,
-            f"Visible: {rad_docs} radiology reports, {rad_images} medical images"
+            is_rad_valid,
+            f"Visible: {rad_docs} radiology reports, {rad_images} medical images (Expected {exp_rad_docs}/{exp_images})"
         ))
     except Exception as e:
         test_results.append(("Radiologist Imaging & Reports Access", "radiologist", "Positive", False, str(e)))

@@ -1,0 +1,14 @@
+{
+  "dataset_name": "PMC-Patients (PubMed Central)",
+  "source": "https://huggingface.co/datasets/zhengyun21/PMC-Patients",
+  "license": "Creative Commons Attribution 4.0 International (CC-BY 4.0)",
+  "generated_at": "2026-10-20T13:44:18.502953Z",
+  "counts": {
+    "patients": 1000,
+    "encounters": 1000,
+    "diagnoses": 1000,
+    "clinical_documents": 1000,
+    "document_chunks": 6244,
+    "medical_images": 292
+  }
+}

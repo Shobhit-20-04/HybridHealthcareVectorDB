@@ -71,14 +71,14 @@ class BaseLLMProvider(ABC):
 
     @staticmethod
     def extract_citations(text: str) -> List[str]:
-        """Extracts document identifiers cited in square brackets (e.g. [SYN-DOC-0042-01-01], [DOC-0042], or [doc-uuid])."""
-        pattern = r"\[((?:SYN-DOC|DOC)-[A-Za-z0-9\-]+|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\]"
+        """Extracts document identifiers cited in square brackets (e.g. [PMC-DOC-0042], [SYN-DOC-0042], [DOC-0042], or [doc-uuid])."""
+        pattern = r"\[((?:PMC-DOC|SYN-DOC|DOC)-[A-Za-z0-9\-]+|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\]"
         matches = re.findall(pattern, text, re.IGNORECASE)
         # Deduplicate while preserving order
         seen = set()
         deduped = []
         for m in matches:
-            norm = m.upper() if (m.upper().startswith("DOC-") or m.upper().startswith("SYN-DOC-")) else m.lower()
+            norm = m.upper() if (m.upper().startswith("DOC-") or m.upper().startswith("SYN-DOC-") or m.upper().startswith("PMC-DOC-")) else m.lower()
             if norm not in seen:
                 seen.add(norm)
                 deduped.append(norm)
@@ -169,7 +169,8 @@ class DeterministicMockLLMProvider(BaseLLMProvider):
         stop_words = {
             "what", "is", "the", "are", "and", "or", "in", "of", "to", "for", "with",
             "a", "an", "on", "at", "by", "from", "how", "does", "patient", "clinical",
-            "medical", "show", "tell", "me", "about", "find", "were", "was"
+            "medical", "show", "tell", "me", "about", "find", "were", "was", "used", "use",
+            "using", "cases", "case", "performed", "also", "table"
         }
         query_words = set(
             re.findall(r"\b[a-zA-Z]{3,}\b", question_text.lower())
@@ -184,12 +185,16 @@ class DeterministicMockLLMProvider(BaseLLMProvider):
         for p in passages:
             snippet = p.get("snippet", "").lower()
             overlap = [w for w in query_words if w in snippet]
-            if overlap or (p.get("cosine_distance", 1.0) < 0.45):
+            if (len(overlap) >= 2 or (len(query_words) <= 1 and len(overlap) >= 1)) or (p.get("cosine_distance", 1.0) < 0.45):
                 matched_passages.append((p, overlap))
 
-        has_any_overlap = any(bool(m[1]) for m in matched_passages)
-        # 4. Abstention trigger: If no passages matched, or no query keywords appear in passages and distance > 0.50
-        if not matched_passages or (not has_any_overlap and best_distance > 0.50) or (best_distance >= self.relevance_threshold):
+        all_matched_words = set()
+        for p, ov in matched_passages:
+            all_matched_words.update(ov)
+        overlap_ratio = len(all_matched_words) / len(query_words) if query_words else 1.0
+
+        # 4. Abstention trigger: If no passages matched, or (overlap_ratio < 0.50 and distance > 0.50), or distance >= relevance_threshold
+        if not matched_passages or (overlap_ratio < 0.50 and best_distance > 0.50) or (best_distance >= self.relevance_threshold) or (overlap_ratio == 0.0 and query_words):
             content = (
                 f"{REFUSAL_PHRASE}\n\n"
                 "**Clinical Uncertainty & Limitations:**\n"

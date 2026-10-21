@@ -148,12 +148,13 @@ class ClinicalRAGPipeline:
             if w.lower() not in CLINICAL_STOPWORDS
         )
         combined_text = " ".join(p.get("snippet", "") for p in passages).lower()
-        has_lexical_match = any(w in combined_text for w in query_words) if query_words else True
+        matched_words = [w for w in query_words if w in combined_text]
+        overlap_ratio = len(matched_words) / len(query_words) if query_words else 1.0
         best_dist = float(passages[0].get("cosine_distance", 1.0)) if passages else 1.0
 
         if not passages:
             evidence_status = "ZERO_DOCUMENTS"
-        elif (not has_lexical_match and best_dist > 0.50) or best_dist > self.relevance_threshold:
+        elif (best_dist > 0.50 and overlap_ratio < 0.50) or (best_dist > self.relevance_threshold) or (overlap_ratio == 0.0 and query_words):
             evidence_status = "INADEQUATE_EVIDENCE"
         else:
             evidence_status = "ADEQUATE_EVIDENCE"

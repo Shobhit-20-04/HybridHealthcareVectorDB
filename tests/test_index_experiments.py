@@ -75,7 +75,7 @@ def test_hnsw_index_lifecycle_and_size(runner):
     assert info["index_type"] == "HNSW"
     assert info["build_time_ms"] > 0.0
     assert info["disk_size_bytes"] > 0
-    assert "kB" in info["disk_size_pretty"] or "bytes" in info["disk_size_pretty"]
+    assert any(unit in info["disk_size_pretty"] for unit in ["bytes", "kB", "MB", "GB"])
 
     # Verify catalog presence
     with get_connection() as conn:

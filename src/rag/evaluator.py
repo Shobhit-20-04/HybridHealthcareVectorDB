@@ -19,7 +19,8 @@ CLINICAL_STOPWORDS = {
     "were", "be", "been", "being", "have", "has", "had", "do", "does", "did",
     "what", "which", "who", "whom", "this", "that", "these", "those", "how",
     "patient", "clinical", "note", "medical", "report", "evaluation", "shows",
-    "findings", "history", "assessment", "plan", "denies", "reports", "stated"
+    "findings", "history", "assessment", "plan", "denies", "reports", "stated",
+    "used", "use", "using", "performed", "cases", "case", "also", "table"
 }
 
 @dataclass
@@ -119,7 +120,7 @@ class RetrievalQualityEvaluator:
         overlap_ratio = len(matched_words) / len(query_words) if query_words else 1.0
 
         # Adequate evidence requires either low cosine distance or strong term overlap
-        has_evidence = (top_dist <= self.relevance_threshold) and (overlap_ratio > 0.0 or not query_words)
+        has_evidence = (top_dist <= self.relevance_threshold) and (overlap_ratio >= 0.50 or top_dist < 0.50) and (overlap_ratio > 0.0 or not query_words)
 
         # Ground truth recall if known
         rec_k = None
@@ -199,13 +200,13 @@ class GenerationGroundednessEvaluator:
         passages_text_lower = passages_text_corpus.lower()
 
         # 2. Citation Extraction & Verification
-        citation_pattern = r"\[((?:SYN-DOC|DOC)-[A-Za-z0-9\-]+|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\]"
+        citation_pattern = r"\[((?:PMC-DOC|SYN-DOC|DOC)-[A-Za-z0-9\-]+|[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})\]"
         raw_citations = re.findall(citation_pattern, answer, re.IGNORECASE)
         
         valid_citations = []
         invalid_citations = []
         for c in raw_citations:
-            norm = c.upper() if (c.upper().startswith("DOC-") or c.upper().startswith("SYN-DOC-")) else c.lower()
+            norm = c.upper() if (c.upper().startswith("DOC-") or c.upper().startswith("SYN-DOC-") or c.upper().startswith("PMC-DOC-")) else c.lower()
             if norm in valid_ids:
                 if norm not in valid_citations:
                     valid_citations.append(norm)

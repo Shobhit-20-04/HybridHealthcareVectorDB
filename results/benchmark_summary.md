@@ -3,24 +3,20 @@
 **Hardware:** Intel64 Family 6 Model 183 Stepping 1, GenuineIntel (16 cores) | 15.69 GB RAM | Windows-10-10.0.26300-SP0  
 **Database:** PostgreSQL 18.6 | `pgvector` v0.8.6  
 **Model & Space:** `sentence-transformers/all-MiniLM-L6-v2` (384-dim, Metric: `cosine` `<=>`)  
-**Parameters:** Top-K = 10 | Warmup = 1 | Iterations = 3 | Total Duration = 43.26s
+**Parameters:** Top-K = 10 | Warmup = 0 | Iterations = 1 | Total Duration = 6.15s
 
 ## Indexing Strategy & Query Performance Comparison
 
 | Configuration | Index Type | Build Time | Size | Mean (ms) | P50 (ms) | P90 (ms) | P95 (ms) | P99 (ms) | Cold P50 | QPS | 1-Recall | ID-Recall | Noise Status |
 |:---|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|:---|
-| **Exact Flat (Ground Truth Baseline)** | Flat | - | 0 bytes | 10.649 | 10.649 | 10.976 | 11.234 | 11.391 | 10.389 | 93.9 | 100.00% | 100.00% | `STABLE` |
-| **HNSW (m=16, ef_s=10)** | HNSW | 59.3 ms | 184 kB | 11.480 | 11.276 | 11.867 | 12.336 | 18.175 | 11.11 | 87.1 | 100.00% | 100.00% | `STABLE` |
-| **HNSW (m=16, ef_s=40)** | HNSW | 59.3 ms | 184 kB | 11.392 | 11.300 | 11.831 | 11.953 | 14.890 | 11.296 | 87.8 | 100.00% | 100.00% | `STABLE` |
-| **HNSW (m=16, ef_s=100)** | HNSW | 59.3 ms | 184 kB | 11.329 | 11.289 | 11.736 | 11.869 | 12.670 | 11.342 | 88.3 | 100.00% | 100.00% | `STABLE` |
-| **IVFFlat (lists=25, probes=1)** | IVFFlat | 47.2 ms | 1472 kB | 11.284 | 11.180 | 11.684 | 11.724 | 16.264 | 11.297 | 88.6 | 100.00% | 100.00% | `STABLE` |
-| **IVFFlat (lists=25, probes=5)** | IVFFlat | 47.2 ms | 1472 kB | 11.259 | 11.231 | 11.582 | 11.632 | 11.754 | 11.234 | 88.8 | 100.00% | 100.00% | `STABLE` |
-| **IVFFlat (lists=25, probes=10)** | IVFFlat | 47.2 ms | 1472 kB | 11.292 | 11.283 | 11.662 | 11.819 | 11.976 | 11.234 | 88.6 | 100.00% | 100.00% | `STABLE` |
-| **Exact Flat [Low Selectivity (Broad Filter ~70%)]** | exact_flat | - | - | 80.653 | 51.969 | 157.663 | 165.122 | 165.122 | - | 12.4 | 100.00% | 100.00% | `HIGH_VARIANCE` |
-| **HNSW Planner Choice [Low Selectivity (Broad Filter ~70%)]** | planner_choice | - | - | 82.696 | 53.094 | 167.181 | 168.136 | 168.136 | - | 12.1 | 100.00% | 100.00% | `HIGH_VARIANCE` |
-| **Exact Flat [Moderate Selectivity (~20%)]** | exact_flat | - | - | 64.190 | 50.701 | 150.081 | 150.629 | 150.629 | - | 15.6 | 100.00% | 100.00% | `HIGH_VARIANCE` |
-| **HNSW Planner Choice [Moderate Selectivity (~20%)]** | planner_choice | - | - | 64.540 | 49.283 | 148.488 | 167.735 | 167.735 | - | 15.5 | 100.00% | 100.00% | `HIGH_VARIANCE` |
-| **Exact Flat [High Selectivity / Restrictive (~1.5%)]** | exact_flat | - | - | 77.140 | 49.297 | 158.124 | 160.949 | 160.949 | - | 13.0 | 100.00% | 100.00% | `HIGH_VARIANCE` |
-| **HNSW Planner Choice [High Selectivity / Restrictive (~1.5%)]** | planner_choice | - | - | 77.712 | 50.006 | 155.222 | 162.341 | 162.341 | - | 12.9 | 100.00% | 100.00% | `HIGH_VARIANCE` |
-| **Exact Flat [Zero-Match / Ultra-Restrictive (0%)]** | exact_flat | - | - | 75.718 | 47.705 | 155.527 | 155.980 | 155.980 | - | 13.2 | 100.00% | 100.00% | `HIGH_VARIANCE` |
-| **HNSW Planner Choice [Zero-Match / Ultra-Restrictive (0%)]** | planner_choice | - | - | 69.417 | 48.073 | 152.321 | 169.320 | 169.320 | - | 14.4 | 100.00% | 100.00% | `HIGH_VARIANCE` |
+| **Exact Flat (Ground Truth Baseline)** | Flat | - | 0 bytes | 18.904 | 18.712 | 19.095 | 19.095 | 19.095 | - | 52.9 | 100.00% | 100.00% | `SMALL_SAMPLE_SIZE` |
+| **HNSW (m=16, ef_s=40)** | HNSW | 612.3 ms | 12 MB | 20.889 | 20.733 | 21.044 | 21.044 | 21.044 | - | 47.9 | 100.00% | 100.00% | `SMALL_SAMPLE_SIZE` |
+| **IVFFlat (lists=25, probes=5)** | IVFFlat | 385.3 ms | 10128 kB | 20.460 | 20.092 | 20.829 | 20.829 | 20.829 | - | 48.9 | 100.00% | 100.00% | `SMALL_SAMPLE_SIZE` |
+| **Exact Flat [Low Selectivity (Broad Filter ~70%)]** | exact_flat | - | - | 257.486 | 203.682 | 311.290 | 311.290 | 311.290 | - | 3.9 | 100.00% | 100.00% | `SMALL_SAMPLE_SIZE` |
+| **HNSW Planner Choice [Low Selectivity (Broad Filter ~70%)]** | planner_choice | - | - | 205.920 | 202.342 | 209.498 | 209.498 | 209.498 | - | 4.9 | 100.00% | 100.00% | `SMALL_SAMPLE_SIZE` |
+| **Exact Flat [Moderate Selectivity (~20%)]** | exact_flat | - | - | 60.527 | 59.376 | 61.678 | 61.678 | 61.678 | - | 16.5 | 100.00% | 100.00% | `SMALL_SAMPLE_SIZE` |
+| **HNSW Planner Choice [Moderate Selectivity (~20%)]** | planner_choice | - | - | 112.410 | 59.258 | 165.563 | 165.563 | 165.563 | - | 8.9 | 100.00% | 100.00% | `SMALL_SAMPLE_SIZE; HIGH_VARIANCE` |
+| **Exact Flat [High Selectivity / Restrictive (~1.5%)]** | exact_flat | - | - | 113.856 | 62.290 | 165.422 | 165.422 | 165.422 | - | 8.8 | 100.00% | 100.00% | `SMALL_SAMPLE_SIZE; HIGH_VARIANCE` |
+| **HNSW Planner Choice [High Selectivity / Restrictive (~1.5%)]** | planner_choice | - | - | 54.052 | 52.215 | 55.888 | 55.888 | 55.888 | - | 18.5 | 100.00% | 100.00% | `SMALL_SAMPLE_SIZE` |
+| **Exact Flat [Zero-Match / Ultra-Restrictive (0%)]** | exact_flat | - | - | 156.394 | 99.916 | 212.872 | 212.872 | 212.872 | - | 6.4 | 100.00% | 100.00% | `SMALL_SAMPLE_SIZE; HIGH_VARIANCE` |
+| **HNSW Planner Choice [Zero-Match / Ultra-Restrictive (0%)]** | planner_choice | - | - | 145.499 | 83.143 | 207.854 | 207.854 | 207.854 | - | 6.9 | 100.00% | 100.00% | `SMALL_SAMPLE_SIZE; HIGH_VARIANCE` |

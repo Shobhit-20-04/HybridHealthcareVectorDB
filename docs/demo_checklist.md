@@ -59,28 +59,27 @@ python scripts/validate_sql.py
 
 ---
 
-### Step 4: Generate Deterministic Synthetic Healthcare Data
+### Step 4: Ingest Real-World PMC Clinical Data (1,000 Patient Cases)
 ```powershell
-python scripts/generate_data.py --preset small --seed 42
+# OPTION A (RECOMMENDED): 1,000 Real Clinical Cases from PubMed Central
+python scripts/download_real_pmc_data.py --num-cases 1000
+python scripts/ingest_real_pmc_data.py --mode replace
+
+# OPTION B: Deterministic Synthetic Data (Offline Testing)
+# python scripts/generate_data.py --preset small --seed 42
+# python scripts/load_data.py --truncate
+# python scripts/embed_documents.py --smoke-test
+# python scripts/embed_images.py --smoke-test
 ```
-*Expected Result:*
-- Generates reproducible cohort: 200 patients, 406 encounters, 693 diagnoses, 591 clinical documents, 810 chunks, 230 imaging records.
-- Saves sanitized JSON datasets into `data/synthetic/`.
+*Expected Result (Option A):*
+- Downloads & curates 1,000 genuine clinical cases from PubMed Central (`PMC-Patients`).
+- Transactionally loads 1,000 patients, 1,000 encounters, 1,000 diagnoses, 1,000 documents, 6,244 chunks, 292 medical images.
+- Generates 6,244 text embeddings (`vector(384)`) and 292 vision embeddings (`vector(512)`).
+- Total records: **17,076 rows** in PostgreSQL.
 
 ---
 
-### Step 5: Transactionally Load Data into PostgreSQL
-```powershell
-python scripts/load_data.py --truncate
-```
-*Expected Result:*
-- Transactionally inserts patients, encounters, diagnoses, clinical documents, document chunks, and medical images.
-- Validates foreign keys, provenance hashes, and uniqueness constraints.
-- Commits transaction and outputs `[V] Ingestion completed successfully.`
-
----
-
-### Step 6: Verify Database Ingestion & Referential Integrity
+### Step 5: Verify Database Ingestion & Referential Integrity
 ```powershell
 python scripts/validate_ingestion.py
 ```
@@ -91,63 +90,91 @@ python scripts/validate_ingestion.py
 
 ---
 
-### Step 7: Generate Dense Text Embeddings & Store in pgvector
-```powershell
-python scripts/embed_documents.py --smoke-test
-```
-*Expected Result:*
-- Reads 804 document chunks from PostgreSQL.
-- Generates 384-dimensional vector embeddings and writes them to `chunk_embeddings`.
-- Confirms vector dimension matches column type; idempotent reruns create zero duplicate embeddings.
-
----
-
-### Step 8: Generate Diagnostic Image Phantoms & Embeddings
-```powershell
-python scripts/embed_images.py --smoke-test
-```
-*Expected Result:*
-- Generates synthetic DICOM-like PNG image phantoms for DX, CT, and US examinations.
-- Generates 512-dimensional vector embeddings and writes them to `image_embeddings`.
-- Verifies physical asset paths on disk.
-
----
-
-### Step 9: Audit Live Database Table Counts
+### Step 6: Audit Live Database Table Counts
 ```powershell
 python scripts/count_records.py
 ```
 *Expected Result:*
-- Displays table audit: 197 patients, 402 encounters, 685 diagnoses, 586 documents, 804 chunks, 804 text embeddings, 227 images, 227 image embeddings (3,936 total rows).
+- Displays synchronized table audit: 1,000 patients, 1,000 encounters, 1,000 diagnoses, 1,000 documents, 6,244 chunks, 6,244 chunk embeddings, 292 images, 292 image embeddings (17,076 total rows).
 
 ---
 
-### Step 10: Run Exact Semantic Search (Ground-Truth Baseline)
+### Step 7: Run Exact Semantic Search (Ground-Truth Baseline)
 ```powershell
-python scripts/search_exact.py "progressive dyspnea on exertion" --top-k 3
+python scripts/search_exact.py "acute myocardial infarction with ST elevation" --top-k 3
 ```
 *Expected Result:*
 - Executes brute-force sequential flat scan (`enable_indexscan=off`).
-- Returns top-3 ranked chunks with cosine distances (lower is closer), snippets, titles, and timing breakdown (~10–50 ms).
+- Returns top-3 ranked chunks with cosine distances (lower is closer), snippets, titles, and timing breakdown (~15–75 ms).
 
 ---
 
-### Step 11: Execute Controlled Vector Index Experiments (Flat vs HNSW vs IVFFlat)
+### Step 8: Run Hybrid Relational–Vector Search
 ```powershell
-python scripts/run_index_experiments.py --top-k 10 --iterations 3
+python scripts/search_hybrid.py "pulmonary infiltrate dyspnea" --department Pulmonology --top-k 3
 ```
 *Expected Result:*
-- Tests Exact Flat, HNSW ($ef_s=10, 40, 100$), and IVFFlat ($probes=1, 5, 10$).
-- Measures index build time, physical size (`pg_relation_size`), query latency ($P_{50}, P_{95}$), and 1-Recall@K against exact baseline.
-- Saves results to `results/vector_index_benchmark.json`.
+- Joins patient demographics (MRN, Age, Gender, DOB), encounter details (Department, Admission Date), and ICD-10 diagnostic codes.
+- Restricts vector similarity calculation strictly to `department = 'Pulmonology'`.
+- Returns top-3 ranked clinical passages with complete relational metadata.
 
 ---
 
-### Step 12: Run Hybrid Relational–Vector Search
+### Step 9: Verify Database Security, Roles & Row-Level Security (RLS)
 ```powershell
-python scripts/search_hybrid.py "progressive dyspnea on exertion" --department Cardiology --top-k 3
+python scripts/verify_security.py
 ```
 *Expected Result:*
+- Audits PostgreSQL catalog for roles and RLS flags.
+- Executes 9/9 live authorization checks: Admin visibility, Physician departmental scoping, Cross-dept isolation, Vector search leakage prevention, Radiologist imaging access, Non-imaging block, Researcher de-identified view access, Direct table access denials.
+- Outputs `[V] ALL 9 AUTHORIZATION & SECURITY TESTS PASSED SUCCESSFULLY!`
+
+---
+
+### Step 10: Run Command-Line Clinical RAG Demonstration
+```powershell
+python scripts/run_rag_demo.py "sarcoidosis and myocardial infarction" --evaluate
+```
+*Expected Result:*
+- Retrieves top-k relevant passages from PostgreSQL.
+- Deterministic local mock LLM synthesizes evidence-grounded answer citing document IDs (e.g. `[PMC-DOC-...]`).
+- Decoupled evaluation verifies 100% Citation Precision, 100% Claim Groundedness, and Correct Abstention when evidence is absent.
+
+---
+
+### Step 11: Run Full Automated Test Suite (106 Tests)
+```powershell
+pytest tests/ -v
+```
+*Expected Result:*
+- `106 passed in ~22s` with 100% passing tests across unit, integration, retrieval, security, multimodal, and benchmark suites.
+
+---
+
+### Step 12: Run Benchmark Suite Smoke Test
+```powershell
+python scripts/run_benchmarks.py --smoke-test
+```
+*Expected Result:*
+- Builds HNSW (12 MB) and IVFFlat (10 MB) indexes on the 6,244 vectors.
+- Compares Exact Flat vs HNSW vs IVFFlat across 4 selectivity tiers.
+- Outputs markdown table, JSON report, and CSV summaries.
+
+---
+
+### Step 13: Launch Interactive React Web Application
+```powershell
+python scripts/run_app.py
+```
+*Expected Result:*
+- Automatically loads the built React production bundle and launches the FastAPI backend.
+- Opens at `http://127.0.0.1:8000`.
+- Provides an intuitive, accessible visual interface for demonstrating:
+  1. **Hybrid Search Explorer** (natural language queries, department/age/document-type filters, EXPLAIN execution plan toggle).
+  2. **Multimodal Search** (Text-to-Image and Image-to-Image similarity search with visual phantom renderings).
+  3. **Row-Level Security (RLS) Simulator** (switch roles between Admin, Physician, Radiologist, Researcher and inspect real-time authorization results).
+  4. **Clinical RAG Assistant** (ask clinical questions, verify document citations, and view decoupled evaluation scores).
+  5. **Database Architecture & Telemetry** (live table row counts, relation disk sizes, and index configurations).
 - Combines semantic vector similarity with relational SQL filter `department = 'Cardiology'`.
 - Returns only Cardiology documents with complete joined patient, encounter, and ICD-10 diagnostic metadata.
 

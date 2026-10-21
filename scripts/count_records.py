@@ -43,7 +43,7 @@ def load_manifest(manifest_path: Path) -> dict:
         try:
             with open(manifest_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                return data.get("counts_sanitized", {})
+                return data.get("counts_sanitized") or data.get("counts", {})
         except Exception:
             return {}
     return {}
@@ -51,11 +51,12 @@ def load_manifest(manifest_path: Path) -> dict:
 def main():
     parser = argparse.ArgumentParser(description="Audit row counts and disk sizes of database tables")
     parser.add_argument("--json", action="store_true", help="Output results in JSON format")
+    default_manifest = "data/real_pmc/audit_manifest.json" if (PROJECT_ROOT / "data/real_pmc/audit_manifest.json").exists() else "data/processed/audit_manifest.json"
     parser.add_argument(
         "--manifest",
         type=str,
-        default="data/processed/audit_manifest.json",
-        help="Path to processed cohort audit manifest for reconciliation"
+        default=default_manifest,
+        help="Path to cohort audit manifest for reconciliation"
     )
     args = parser.parse_args()
 

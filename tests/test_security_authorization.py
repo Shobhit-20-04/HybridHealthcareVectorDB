@@ -45,11 +45,11 @@ def test_admin_full_visibility():
             cur.execute("SELECT COUNT(*) FROM image_embeddings;")
             img_embeds = cur.fetchone()[0]
 
-    assert docs == 586
-    assert chunks == 804
-    assert embeds == 804
-    assert images == 227
-    assert img_embeds == 227
+    assert docs > 0
+    assert chunks > 0
+    assert embeds == chunks
+    assert images > 0
+    assert img_embeds == images
 
 # =============================================================================
 # 2. Attending Physician Permissions & RLS Tests
@@ -57,6 +57,19 @@ def test_admin_full_visibility():
 
 def test_physician_departmental_scoping_positive():
     """attending_physician scoped to Cardiology can retrieve Cardiology documents and chunks."""
+    # Obtain admin baseline for Cardiology
+    with get_role_connection("clinical_admin", direct_login=True) as a_conn:
+        with a_conn.cursor() as a_cur:
+            a_cur.execute("""
+                SELECT COUNT(DISTINCT cd.document_id), COUNT(ce.embedding_id)
+                FROM clinical_documents cd
+                JOIN encounters e ON cd.encounter_id = e.encounter_id
+                JOIN document_chunks dc ON cd.document_id = dc.document_id
+                JOIN chunk_embeddings ce ON dc.chunk_id = ce.chunk_id
+                WHERE e.department = 'Cardiology';
+            """)
+            exp_cardio_docs, exp_cardio_chunks = a_cur.fetchone()
+
     with get_role_connection("attending_physician", department="Cardiology", direct_login=True) as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT COUNT(*) FROM clinical_documents;")
@@ -66,9 +79,10 @@ def test_physician_departmental_scoping_positive():
             cur.execute("SELECT COUNT(*) FROM chunk_embeddings;")
             embeds = cur.fetchone()[0]
 
-    assert docs == 64
-    assert chunks == 85
-    assert embeds == 85
+    assert docs == exp_cardio_docs
+    assert chunks == exp_cardio_chunks
+    assert embeds == exp_cardio_chunks
+    assert docs > 0
 
 def test_physician_cross_department_isolation_negative():
     """attending_physician scoped to Cardiology CANNOT retrieve Neurology documents."""
@@ -122,6 +136,13 @@ def test_physician_vector_search_department_isolation(text_embedder):
 
 def test_radiologist_imaging_and_reports_access_positive():
     """radiologist can view radiology reports, medical images, and image embeddings."""
+    with get_role_connection("clinical_admin", direct_login=True) as a_conn:
+        with a_conn.cursor() as a_cur:
+            a_cur.execute("SELECT COUNT(*) FROM clinical_documents WHERE document_type = 'radiology_report';")
+            exp_rad_docs = a_cur.fetchone()[0]
+            a_cur.execute("SELECT COUNT(*) FROM medical_images;")
+            exp_images = a_cur.fetchone()[0]
+
     with get_role_connection("radiologist", direct_login=True) as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT COUNT(*) FROM clinical_documents;")
@@ -131,9 +152,11 @@ def test_radiologist_imaging_and_reports_access_positive():
             cur.execute("SELECT COUNT(*) FROM image_embeddings;")
             rad_img_embeds = cur.fetchone()[0]
 
-    assert rad_docs == 109
-    assert rad_images == 227
-    assert rad_img_embeds == 227
+    assert rad_docs == exp_rad_docs
+    assert rad_images == exp_images
+    assert rad_img_embeds == exp_images
+    assert rad_docs > 0
+    assert rad_images > 0
 
 def test_radiologist_non_imaging_documents_blocked_negative():
     """radiologist CANNOT view discharge summaries or progress notes."""
@@ -178,6 +201,13 @@ def test_radiologist_vector_search_isolation(text_embedder):
 
 def test_researcher_deidentified_views_access_positive():
     """clinical_researcher can query deidentified_clinical_documents and deidentified_chunk_embeddings."""
+    with get_role_connection("clinical_admin", direct_login=True) as a_conn:
+        with a_conn.cursor() as a_cur:
+            a_cur.execute("SELECT COUNT(*) FROM clinical_documents;")
+            exp_docs = a_cur.fetchone()[0]
+            a_cur.execute("SELECT COUNT(*) FROM chunk_embeddings;")
+            exp_embeds = a_cur.fetchone()[0]
+
     with get_role_connection("clinical_researcher", direct_login=True) as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT COUNT(*) FROM deidentified_clinical_documents;")
@@ -185,8 +215,9 @@ def test_researcher_deidentified_views_access_positive():
             cur.execute("SELECT COUNT(*) FROM deidentified_chunk_embeddings;")
             deid_embeds = cur.fetchone()[0]
 
-    assert deid_docs == 586
-    assert deid_embeds == 804
+    assert deid_docs == exp_docs
+    assert deid_embeds == exp_embeds
+    assert deid_docs > 0
 
 def test_researcher_direct_patients_access_denied_negative():
     """clinical_researcher direct access to patients table is rejected with InsufficientPrivilege."""
