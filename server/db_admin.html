@@ -93,7 +93,7 @@
       border-color: #475569;
     }
 
-    /* MAIN CONTAINER: SIDEBAR + STUDIO */
+    /* STUDIO MAIN CONTAINER */
     .studio-layout {
       display: flex;
       flex: 1;
@@ -103,11 +103,14 @@
 
     /* LEFT SIDEBAR */
     aside {
-      width: 260px;
+      width: 280px;
       background: #0b1120;
       border-right: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
+      flex-shrink: 0;
+    }
+    .sidebar-top {
       flex-shrink: 0;
     }
     .sidebar-title {
@@ -133,38 +136,101 @@
       align-items: center;
       gap: 8px;
     }
-    .table-list {
-      list-style: none;
-      overflow-y: auto;
-      flex: 1;
-      padding: 6px 0;
+    .custom-query-btn {
+      width: calc(100% - 24px);
+      margin: 10px 12px;
+      padding: 8px 12px;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px dashed #3b82f6;
+      border-radius: 6px;
+      color: #60a5fa;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
     }
-    .table-item {
+    .custom-query-btn:hover {
+      background: #2563eb;
+      color: #ffffff;
+      border-style: solid;
+    }
+
+    .sidebar-scrollable {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .sidebar-section-header {
+      padding: 10px 16px 6px 16px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #64748b;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 16px;
-      font-size: 13px;
+      border-top: 1px solid #1e293b;
+      margin-top: 4px;
+    }
+    .count-badge {
+      font-size: 10px;
+      background: #1e293b;
+      color: #94a3b8;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+    }
+
+    .sidebar-list {
+      list-style: none;
+      padding: 4px 0;
+    }
+    .sidebar-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 16px;
+      font-size: 12px;
       color: #cbd5e1;
       cursor: pointer;
       user-select: none;
       transition: all 0.15s ease;
       border-left: 3px solid transparent;
     }
-    .table-item:hover {
+    .sidebar-item:hover {
       background: rgba(255, 255, 255, 0.04);
       color: #ffffff;
     }
-    .table-item.active {
+    .sidebar-item.active {
       background: rgba(59, 130, 246, 0.12);
       color: #60a5fa;
       border-left-color: #3b82f6;
       font-weight: 600;
     }
-    .table-name {
+    .item-label {
       display: flex;
       align-items: center;
       gap: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .icon-accent {
+      font-size: 12px;
+      color: #38bdf8;
+    }
+    .query-tag {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      background: #1e293b;
+      color: #38bdf8;
+      padding: 2px 5px;
+      border-radius: 4px;
+      border: 1px solid rgba(56, 189, 248, 0.2);
     }
     .table-badge {
       font-size: 11px;
@@ -181,6 +247,7 @@
       color: #64748b;
       line-height: 1.5;
       background: #090d16;
+      flex-shrink: 0;
     }
 
     /* RIGHT MAIN AREA */
@@ -196,14 +263,14 @@
     .editor-card {
       background: #131d31;
       border-bottom: 1px solid var(--border-color);
-      padding: 16px 20px;
+      padding: 14px 20px;
       flex-shrink: 0;
     }
     .preset-row {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .preset-label {
       font-size: 12px;
@@ -226,7 +293,7 @@
     }
     .sql-input {
       width: 100%;
-      height: 105px;
+      height: 110px;
       background: #0b1120;
       border: 1px solid var(--border-color);
       border-radius: 6px;
@@ -248,7 +315,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 12px;
+      margin-top: 10px;
       flex-wrap: wrap;
       gap: 10px;
     }
@@ -329,7 +396,7 @@
     /* RESULTS VIEW */
     .results-section {
       flex: 1;
-      padding: 16px 20px;
+      padding: 14px 20px;
       overflow: auto;
     }
     .table-container {
@@ -443,17 +510,83 @@
     
     <!-- LEFT SIDEBAR -->
     <aside>
-      <div class="sidebar-title">
-        <span>Relational Schemas</span>
-        <span style="font-size: 10px; color: #64748b;">public</span>
+      <div class="sidebar-top">
+        <div class="sidebar-title">
+          <span>Database Explorer</span>
+          <span style="font-size: 10px; color: #64748b;">public</span>
+        </div>
+        <div class="db-tag">
+          <span>📁</span>
+          <span>healthcare_vectordb</span>
+        </div>
+        <button class="custom-query-btn" onclick="newCustomQuery()">
+          <span>➕</span> New Custom Query
+        </button>
       </div>
-      <div class="db-tag">
-        <span>📁</span>
-        <span>healthcare_vectordb</span>
+
+      <div class="sidebar-scrollable">
+        
+        <!-- SECTION 1: ARCHITECTURAL QUERIES (DIRECT SIDEBAR RUNNER) -->
+        <div class="sidebar-section-header">
+          <span>Architectural Queries</span>
+          <span class="count-badge">6</span>
+        </div>
+        <ul class="sidebar-list" id="presetList">
+          <li class="sidebar-item" data-key="hybrid" onclick="selectPreset('hybrid', this)">
+            <div class="item-label">
+              <span class="icon-accent">⚡</span>
+              <span>1. Hybrid Search</span>
+            </div>
+            <span class="query-tag">HNSW</span>
+          </li>
+          <li class="sidebar-item" data-key="explain" onclick="selectPreset('explain', this)">
+            <div class="item-label">
+              <span class="icon-accent">🔍</span>
+              <span>2. EXPLAIN Plan</span>
+            </div>
+            <span class="query-tag">Cost</span>
+          </li>
+          <li class="sidebar-item" data-key="exact" onclick="selectPreset('exact', this)">
+            <div class="item-label">
+              <span class="icon-accent">🎯</span>
+              <span>3. Exact Top-K</span>
+            </div>
+            <span class="query-tag">Flat</span>
+          </li>
+          <li class="sidebar-item" data-key="join" onclick="selectPreset('join', this)">
+            <div class="item-label">
+              <span class="icon-accent">🔗</span>
+              <span>4. 4-Way 3NF Join</span>
+            </div>
+            <span class="query-tag">Relational</span>
+          </li>
+          <li class="sidebar-item" data-key="multimodal" onclick="selectPreset('multimodal', this)">
+            <div class="item-label">
+              <span class="icon-accent">🖼️</span>
+              <span>5. Multimodal Search</span>
+            </div>
+            <span class="query-tag">CLIP</span>
+          </li>
+          <li class="sidebar-item" data-key="storage" onclick="selectPreset('storage', this)">
+            <div class="item-label">
+              <span class="icon-accent">📊</span>
+              <span>6. Storage Footprint</span>
+            </div>
+            <span class="query-tag">Disk</span>
+          </li>
+        </ul>
+
+        <!-- SECTION 2: RELATIONAL TABLES (DIRECT SIDEBAR RUNNER) -->
+        <div class="sidebar-section-header">
+          <span>Relational Schemas</span>
+          <span class="count-badge">9</span>
+        </div>
+        <ul class="sidebar-list" id="tableList">
+          <li style="padding: 14px; text-align: center; color: #64748b; font-size: 12px;">Loading schemas...</li>
+        </ul>
+
       </div>
-      <ul class="table-list" id="tableList">
-        <li style="padding: 14px; text-align: center; color: #64748b; font-size: 12px;">Loading schemas...</li>
-      </ul>
+
       <div class="sidebar-meta">
         <div><strong>Dataset:</strong> PMC-Patients (1,000 cases)</div>
         <div><strong>Vector Metric:</strong> Cosine Distance (&lt;=&gt;)</div>
@@ -469,7 +602,7 @@
         <div class="preset-row">
           <label class="preset-label" for="presetSelector">Architectural Queries:</label>
           <select id="presetSelector" class="preset-dropdown" onchange="applyPreset()">
-            <option value="">-- Select an evaluated architectural query --</option>
+            <option value="">-- Select or write custom query --</option>
             <option value="hybrid">1. [HYBRID SEARCH] SQL Filter (Cardiology) + Vector Cosine Distance (&lt;=&gt;)</option>
             <option value="explain">2. [QUERY PLAN] EXPLAIN (ANALYZE, BUFFERS) HNSW Index Traversal</option>
             <option value="exact">3. [EXACT TOP-K] Exact Cosine Similarity across all 6,244 Chunks</option>
@@ -534,7 +667,7 @@
 
           <div id="viewBody" class="table-scroll">
             <div style="padding: 40px; text-align: center; color: #64748b; font-size: 13px;">
-              Select a relational table from the sidebar or choose an architectural query above to begin.
+              Click an architectural query or a relational table in the sidebar to run.
             </div>
           </div>
         </div>
@@ -665,11 +798,12 @@ ORDER BY pg_relation_size(c.oid) DESC;`
           list.innerHTML = "";
           data.tables.forEach(t => {
             const li = document.createElement("li");
-            li.className = "table-item";
+            li.className = "sidebar-item";
+            li.setAttribute("data-table", t.name);
             li.onclick = (e) => onTableClick(t.name, e);
 
             const leftDiv = document.createElement("div");
-            leftDiv.className = "table-name";
+            leftDiv.className = "item-label";
             leftDiv.innerHTML = '<span style="color:#64748b;">⊞</span> <span>' + t.name + '</span>';
 
             const badge = document.createElement("span");
@@ -686,12 +820,24 @@ ORDER BY pg_relation_size(c.oid) DESC;`
         });
     }
 
+    function selectPreset(key, element) {
+      document.querySelectorAll(".sidebar-item").forEach(el => el.classList.remove("active"));
+      if (element) {
+        element.classList.add("active");
+      }
+      document.getElementById("presetSelector").value = key;
+      if (QUERY_PRESETS[key]) {
+        document.getElementById("sqlQuery").value = QUERY_PRESETS[key];
+        runSql(key === "explain");
+      }
+    }
+
     function onTableClick(tableName, event) {
-      document.querySelectorAll(".table-item").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".sidebar-item").forEach(el => el.classList.remove("active"));
       if (event && event.currentTarget) {
         event.currentTarget.classList.add("active");
       }
-      
+      document.getElementById("presetSelector").value = "";
       const limit = document.getElementById("limitPicker").value;
       const sql = "SELECT * FROM " + tableName + " LIMIT " + limit + ";";
       document.getElementById("sqlQuery").value = sql;
@@ -700,9 +846,25 @@ ORDER BY pg_relation_size(c.oid) DESC;`
 
     function applyPreset() {
       const sel = document.getElementById("presetSelector").value;
+      document.querySelectorAll(".sidebar-item").forEach(el => el.classList.remove("active"));
       if (QUERY_PRESETS[sel]) {
         document.getElementById("sqlQuery").value = QUERY_PRESETS[sel];
+        const sidebarItems = document.querySelectorAll("#presetList .sidebar-item");
+        sidebarItems.forEach(item => {
+          if (item.getAttribute("data-key") === sel) {
+            item.classList.add("active");
+          }
+        });
+        runSql(sel === "explain");
       }
+    }
+
+    function newCustomQuery() {
+      document.querySelectorAll(".sidebar-item").forEach(el => el.classList.remove("active"));
+      document.getElementById("presetSelector").value = "";
+      document.getElementById("sqlQuery").value = "-- Write your custom SQL query below:\nSELECT * FROM patients LIMIT 10;";
+      document.getElementById("sqlQuery").focus();
+      document.getElementById("sqlQuery").select();
     }
 
     function clearQuery() {
