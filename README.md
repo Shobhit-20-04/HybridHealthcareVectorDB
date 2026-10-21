@@ -208,21 +208,21 @@ pytest tests/ -v
 
 ---
 
-### Step 5: Faculty Demonstration — Two Simple Options
+### Step 5: Faculty Demonstration — Two Minimal DBMS Options
 
-You can demonstrate the project to faculty using either the **phpMyAdmin-style Database Console** (simple, web-based) or directly from the **VS Code / Terminal CLI** (pure queries, zero browser needed):
+You can demonstrate the project to faculty using either the **Minimal PostgreSQL & pgvector Database Studio** (clean, dark-themed SQL studio) or directly from the **VS Code / Terminal CLI** (pure queries, zero browser needed):
 
-#### Option A: phpMyAdmin-style Database Web Console (Recommended for Visual SQL Demos)
+#### Option A: PostgreSQL & pgvector Database Studio (Recommended Web SQL Studio)
 Run the server with a single command:
 ```powershell
 python scripts/run_app.py
 ```
 Then open:
-- **phpMyAdmin-style DBMS Console:** [http://127.0.0.1:8000/db-admin](http://127.0.0.1:8000/db-admin)
-  - Left sidebar lists all 9 database tables (`patients`, `encounters`, `chunk_embeddings`, etc.) with live row counts.
-  - Click any table to immediately browse its rows in a clean tabular grid.
-  - Use the **"⚡ Faculty Demo Queries"** dropdown to instantly run Hybrid Search, `EXPLAIN ANALYZE` HNSW Index Scans, Exact Top-K Cosine Distance, or 4-Way Relational Joins.
-  - Or type any custom SQL query in the editor and click **▶ Run SQL (Ctrl+Enter)** or **🔍 EXPLAIN ANALYZE**.
+- **Database Studio:** [http://127.0.0.1:8000/db-admin](http://127.0.0.1:8000/db-admin)
+  - Left sidebar lists all 9 relational schemas (`patients`, `encounters`, `chunk_embeddings`, etc.) with live tuple counts.
+  - Click any table to immediately browse its rows in a clean data grid.
+  - Use the **"Architectural Queries"** dropdown to instantly run Hybrid Search, `EXPLAIN ANALYZE` HNSW Index Scans, Exact Top-K Cosine Distance, or 4-Way Relational Joins.
+  - Or type any custom SQL query in the editor and click **▶ Execute Query (Ctrl+Enter)** or **🔍 EXPLAIN ANALYZE**.
 - **Interactive Visual Explorer (React):** [http://127.0.0.1:8000](http://127.0.0.1:8000)
 - **Interactive OpenAPI Documentation:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
