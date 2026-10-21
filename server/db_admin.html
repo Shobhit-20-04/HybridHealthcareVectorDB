@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PostgreSQL + pgvector DBMS Console (phpMyAdmin Style)</title>
+  <style>
+    :root {
+      --primary: #1e40af;
+      --primary-dark: #1e3a8a;
+      --accent: #2563eb;
+      --success: #15803d;
+      --success-bg: #dcfce7;
+      --bg: #f8fafc;
+      --panel-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --font-mono: 'Consolas', 'Courier New', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* TOP BRAND HEADER */
+    header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+      color: #ffffff;
+      padding: 10px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #172554;
+      flex-shrink: 0;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      font-size: 24px;
+    }
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+    .brand-subtitle {
+      font-size: 11px;
+      opacity: 0.85;
+      font-weight: 400;
+    }
+    .header-links {
+      display: flex;
+      gap: 10px;
+    }
+    .header-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+    .header-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* MAIN CONTAINER: SIDEBAR + CONTENT */
+    .app-body {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 54px);
+      overflow: hidden;
+    }
+
+    /* LEFT SIDEBAR */
+    aside {
+      width: 270px;
+      background: #ffffff;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .sidebar-header {
+      background: #f1f5f9;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .db-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: #e2e8f0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1e293b;
+      border-bottom: 1px solid var(--border);
+    }
+    .table-list {
+      list-style: none;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .table-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.15s;
+    }
+    .table-item:hover {
+      background: #e0f2fe;
+    }
+    .table-item.active {
+      background: #dbeafe;
+      font-weight: 600;
+      border-left: 4px solid var(--primary);
+    }
+    .table-name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #334155;
+    }
+    .table-count {
+      font-size: 11px;
+      background: #f1f5f9;
+      color: #64748b;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .sidebar-footer {
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* RIGHT MAIN AREA */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      background: #f8fafc;
+    }
+
+    /* QUERY EDITOR PANEL */
+    .editor-section {
+      background: #ffffff;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      flex-shrink: 0;
+    }
+    .preset-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .preset-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #334155;
+      white-space: nowrap;
+    }
+    .preset-select {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 13px;
+      background: #ffffff;
+      color: #0f172a;
+      outline: none;
+    }
+    .preset-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+    }
+    .sql-textarea {
+      width: 100%;
+      height: 110px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.45;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: #f8fafc;
+      color: #0f172a;
+      resize: vertical;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .sql-textarea:focus {
+      background: #ffffff;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    .editor-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn {
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn-primary {
+      background: #16a34a;
+      color: #ffffff;
+    }
+    .btn-primary:hover {
+      background: #15803d;
+    }
+    .btn-secondary {
+      background: #2563eb;
+      color: #ffffff;
+    }
+    .btn-secondary:hover {
+      background: #1d4ed8;
+    }
+    .btn-muted {
+      background: #e2e8f0;
+      color: #475569;
+    }
+    .btn-muted:hover {
+      background: #cbd5e1;
+    }
+
+    .select-sm {
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 12px;
+      background: #ffffff;
+      color: #334155;
+    }
+
+    /* FEEDBACK BANNER */
+    .feedback-banner {
+      padding: 8px 18px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .feedback-success {
+      background: #ecfdf5;
+      color: #065f46;
+      border-color: #a7f3d0;
+    }
+    .feedback-error {
+      background: #fef2f2;
+      color: #991b1b;
+      border-color: #fecaca;
+    }
+
+    /* RESULTS VIEW CONTAINER */
+    .results-container {
+      flex: 1;
+      padding: 14px 18px;
+      overflow: auto;
+    }
+    .results-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+    .results-header {
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .results-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    /* DATA TABLE GRID */
+    .table-wrapper {
+      max-height: calc(100vh - 380px);
+      overflow: auto;
+    }
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+    table.data-table th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-bottom: 2px solid var(--border);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      white-space: nowrap;
+    }
+    table.data-table td {
+      padding: 7px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      border-right: 1px solid #f1f5f9;
+      color: #1e293b;
+      max-width: 380px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    table.data-table tr:nth-child(even) {
+      background: #fcfdfe;
+    }
+    table.data-table tr:hover {
+      background: #eff6ff;
+    }
+    .null-badge {
+      color: #94a3b8;
+      font-style: italic;
+    }
+    .vector-cell {
+      font-family: var(--font-mono);
+      color: #2563eb;
+      font-size: 11px;
+      background: #eff6ff;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+
+    /* QUERY PLAN VIEW */
+    .query-plan-box {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.5;
+      padding: 14px;
+      background: #0f172a;
+      color: #38bdf8;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      border-radius: 4px;
+    }
+    .query-plan-highlight {
+      color: #4ade80;
+      font-weight: bold;
+    }
+
+    /* SCHEMA STRUCTURE MODAL / TAB */
+    .structure-table th {
+      background: #e2e8f0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <span class="brand-icon">🐘</span>
+      <div>
+        <div class="brand-title">PostgreSQL 18.6 + pgvector — Database Query Console</div>
+        <div class="brand-subtitle">phpMyAdmin-style interface for Hybrid Relational–Vector Information Retrieval</div>
+      </div>
+    </div>
+    <div class="header-links">
+      <a href="/" class="header-btn" title="Back to React 5-tab application">
+        <span>🔀</span> Visual App View
+      </a>
+      <a href="/docs" target="_blank" class="header-btn" title="FastAPI Swagger Documentation">
+        <span>📖</span> API Docs
+      </a>
+      <button class="header-btn" onclick="fetchTables()" title="Reload schema & counts">
+        <span>🔄</span> Refresh
+      </button>
+    </div>
+  </header>
+
+  <!-- BODY: SIDEBAR + MAIN -->
+  <div class="app-body">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside>
+      <div class="sidebar-header">
+        <span>Server: localhost:5432</span>
+      </div>
+      <div class="db-badge">
+        <span>📁</span>
+        <span>healthcare_vectordb</span>
+      </div>
+      <ul class="table-list" id="tableList">
+        <li style="padding: 14px; text-align: center; color: #94a3b8; font-size: 12px;">Loading tables...</li>
+      </ul>
+      <div class="sidebar-footer">
+        <div><strong>Dataset:</strong> PMC-Patients (CC-BY 4.0)</div>
+        <div><strong>Vectors:</strong> 384-dim (text) & 512-dim (CLIP)</div>
+        <div><strong>Index:</strong> HNSW (m=16, ef_construction=64)</div>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN CONTENT -->
+    <main>
+      
+      <!-- SQL EDITOR PANEL -->
+      <section class="editor-section">
+        <div class="preset-bar">
+          <label class="preset-label" for="presetQueries">⚡ Faculty Demo Queries:</label>
+          <select id="presetQueries" class="preset-select" onchange="loadPresetQuery()">
+            <option value="">-- Select a pre-loaded academic query --</option>
+            <option value="hybrid">1. [HYBRID SEARCH] SQL Filter (Cardiology) + Vector Cosine Distance (&lt;=&gt;)</option>
+            <option value="explain">2. [QUERY PLAN] EXPLAIN (ANALYZE, BUFFERS) HNSW Index Traversal</option>
+            <option value="exact">3. [EXACT TOP-K] Exact Cosine Similarity across all 6,244 Chunks</option>
+            <option value="join">4. [3NF NORMALIZATION] 4-Way Relational Join (Patients-Encounters-Diagnoses-Docs)</option>
+            <option value="multimodal">5. [MULTIMODAL] Medical Image Metadata + CLIP Visual Embeddings</option>
+            <option value="storage">6. [DBMS STORAGE] Relational Table Sizes vs Vector Index Footprint</option>
+          </select>
+        </div>
+
+        <textarea id="sqlInput" class="sql-textarea" placeholder="Type any PostgreSQL / pgvector query here (e.g., SELECT * FROM patients LIMIT 25;)..." spellcheck="false"></textarea>
+
+        <div class="editor-controls">
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="executeQuery(false)" title="Execute SQL (Ctrl+Enter)">
+              <span>▶</span> Run SQL
+            </button>
+            <button class="btn btn-secondary" onclick="executeQuery(true)" title="Run with EXPLAIN (ANALYZE, BUFFERS)">
+              <span>🔍</span> EXPLAIN ANALYZE
+            </button>
+            <button class="btn btn-muted" onclick="clearEditor()">
+              <span>🗑️</span> Clear
+            </button>
+          </div>
+
+          <div class="btn-group">
+            <label style="font-size: 12px; color: #475569; font-weight: 600;">Role:</label>
+            <select id="roleSelect" class="select-sm">
+              <option value="postgres">postgres (Superuser)</option>
+              <option value="clinical_admin">clinical_admin (Admin)</option>
+              <option value="attending_physician">attending_physician (RLS)</option>
+              <option value="radiologist">radiologist</option>
+              <option value="clinical_researcher">clinical_researcher</option>
+            </select>
+
+            <label style="font-size: 12px; color: #475569; font-weight: 600; margin-left: 8px;">Limit:</label>
+            <select id="limitSelect" class="select-sm">
+              <option value="25">25 rows</option>
+              <option value="50">50 rows</option>
+              <option value="100">100 rows</option>
+              <option value="500">500 rows</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- EXECUTION STATUS BANNER -->
+      <div id="feedbackBanner" class="feedback-banner feedback-success" style="display: none;">
+        <span id="feedbackText">Ready</span>
+        <span id="feedbackMetrics" style="font-size: 11px; opacity: 0.85;"></span>
+      </div>
+
+      <!-- RESULTS CONTAINER -->
+      <section class="results-container">
+        <div class="results-card">
+          <div class="results-header">
+            <span class="results-title" id="resultsTitle">Query Results</span>
+            <div id="resultsActions" style="display: none; gap: 8px;">
+              <button class="btn btn-muted" style="padding: 4px 8px; font-size: 11px;" onclick="exportCSV()">
+                📥 Export CSV
+              </button>
+            </div>
+          </div>
+
+          <div id="resultsContent" class="table-wrapper">
+            <div style="padding: 40px; text-align: center; color: #64748b; font-size: 13px;">
+              Select a table from the left sidebar or pick an Academic Demo Query above to execute.
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // PRESET DEMO QUERIES
+    const PRESETS = {
+      hybrid: `SELECT 
+    p.synthetic_mrn AS patient_mrn,
+    p.gender,
+    ROUND(EXTRACT(YEAR FROM age(p.date_of_birth))::numeric, 0) AS age,
+    e.department,
+    d.document_type,
+    SUBSTRING(c.chunk_text, 1, 80) || '...' AS clinical_snippet,
+    ROUND((1 - (ce.embedding <=> (SELECT embedding FROM chunk_embeddings LIMIT 1)))::numeric, 4) AS cosine_similarity,
+    ROUND((ce.embedding <=> (SELECT embedding FROM chunk_embeddings LIMIT 1))::numeric, 4) AS cosine_distance
+FROM chunk_embeddings ce
+JOIN document_chunks c ON ce.chunk_id = c.chunk_id
+JOIN clinical_documents d ON c.document_id = d.document_id
+JOIN encounters e ON d.encounter_id = e.encounter_id
+JOIN patients p ON e.patient_id = p.patient_id
+WHERE e.department = 'Cardiology'
+ORDER BY ce.embedding <=> (SELECT embedding FROM chunk_embeddings LIMIT 1)
+LIMIT 10;`,
+
+      explain: `EXPLAIN (ANALYZE, BUFFERS)
+SELECT 
+    p.synthetic_mrn,
+    e.department,
+    d.document_type,
+    ce.embedding <=> (SELECT embedding FROM chunk_embeddings LIMIT 1) AS distance
+FROM chunk_embeddings ce
+JOIN document_chunks c ON ce.chunk_id = c.chunk_id
+JOIN clinical_documents d ON c.document_id = d.document_id
+JOIN encounters e ON d.encounter_id = e.encounter_id
+JOIN patients p ON e.patient_id = p.patient_id
+WHERE e.department = 'Cardiology'
+ORDER BY ce.embedding <=> (SELECT embedding FROM chunk_embeddings LIMIT 1)
+LIMIT 5;`,
+
+      exact: `SELECT 
+    d.synthetic_document_num AS doc_num,
+    d.document_type,
+    c.chunk_index,
+    c.token_count,
+    SUBSTRING(c.chunk_text, 1, 90) || '...' AS snippet,
+    ROUND((1 - (ce.embedding <=> (SELECT embedding FROM chunk_embeddings LIMIT 1)))::numeric, 4) AS cosine_sim,
+    ROUND((ce.embedding <=> (SELECT embedding FROM chunk_embeddings LIMIT 1))::numeric, 4) AS distance
+FROM chunk_embeddings ce
+JOIN document_chunks c ON ce.chunk_id = c.chunk_id
+JOIN clinical_documents d ON c.document_id = d.document_id
+ORDER BY ce.embedding <=> (SELECT embedding FROM chunk_embeddings LIMIT 1)
+LIMIT 10;`,
+
+      join: `SELECT 
+    p.synthetic_mrn,
+    p.gender,
+    e.department,
+    TO_CHAR(e.admission_date, 'YYYY-MM-DD') AS admission,
+    diag.icd10_code,
+    SUBSTRING(diag.description, 1, 35) AS diagnosis,
+    doc.document_type,
+    SUBSTRING(doc.title, 1, 45) || '...' AS document_title
+FROM patients p
+JOIN encounters e ON p.patient_id = e.patient_id
+JOIN diagnoses diag ON e.encounter_id = diag.encounter_id
+JOIN clinical_documents doc ON e.encounter_id = doc.encounter_id
+WHERE e.department = 'Neurology'
+ORDER BY e.admission_date DESC
+LIMIT 15;`,
+
+      multimodal: `SELECT 
+    img.synthetic_image_num AS image_num,
+    img.modality,
+    img.body_site,
+    e.department,
+    ROUND((1 - (ie.embedding <=> (SELECT embedding FROM image_embeddings LIMIT 1)))::numeric, 4) AS visual_similarity,
+    ROUND((ie.embedding <=> (SELECT embedding FROM image_embeddings LIMIT 1))::numeric, 4) AS visual_distance,
+    img.file_path
+FROM image_embeddings ie
+JOIN medical_images img ON ie.image_id = img.image_id
+JOIN encounters e ON img.encounter_id = e.encounter_id
+ORDER BY ie.embedding <=> (SELECT embedding FROM image_embeddings LIMIT 1)
+LIMIT 10;`,
+
+      storage: `SELECT 
+    relname AS relation_name,
+    CASE 
+        WHEN relkind = 'r' THEN 'Table'
+        WHEN relkind = 'i' THEN 'Index'
+        ELSE 'Other'
+    END AS type,
+    pg_size_pretty(pg_relation_size(c.oid)) AS disk_size,
+    reltuples::bigint AS estimated_rows
+FROM pg_class c
+JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE n.nspname = 'public' 
+  AND c.relname IN (
+    'patients', 'encounters', 'diagnoses', 'clinical_documents', 
+    'document_chunks', 'chunk_embeddings', 'medical_images', 'image_embeddings',
+    'idx_chunk_embeddings_hnsw_cosine', 'idx_chunk_embeddings_ivfflat_cosine'
+  )
+ORDER BY pg_relation_size(c.oid) DESC;`
+    };
+
+    let currentTableData = null;
+
+    // Load tables list on startup
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchTables();
+      
+      // Ctrl+Enter hotkey to run query
+      document.getElementById("sqlInput").addEventListener("keydown", (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          e.preventDefault();
+          executeQuery(false);
+        }
+      });
+    });
+
+    async function fetchTables() {
+      const listEl = document.getElementById("tableList");
+      try {
+        const res = await fetch("/api/sql/tables");
+        const data = await res.json();
+        
+        if (!data.tables) return;
+        
+        listEl.innerHTML = "";
+        data.tables.forEach(t => {
+          const li = document.createElement("li");
+          li.className = "table-item";
+          li.onclick = () => selectBrowseTable(t.name);
+          li.innerHTML = `
+            <div class="table-name">
+              <span>📄</span>
+              <span>\${t.name}</span>
+            </div>
+            <span class="table-count" title="\${t.count} records">\${Number(t.count).toLocaleString()}</span>
+          `;
+          listEl.appendChild(li);
+        });
+      } catch (err) {
+        listEl.innerHTML = `<li style="padding: 10px; color: red;">Failed to load tables</li>`;
+      }
+    }
+
+    function selectBrowseTable(tableName) {
+      document.querySelectorAll(".table-item").forEach(el => el.classList.remove("active"));
+      event.currentTarget.classList.add("active");
+      
+      const limit = document.getElementById("limitSelect").value;
+      const sql = `SELECT * FROM \${tableName} LIMIT \${limit};`;
+      document.getElementById("sqlInput").value = sql;
+      executeQuery(false);
+    }
+
+    function loadPresetQuery() {
+      const val = document.getElementById("presetQueries").value;
+      if (PRESETS[val]) {
+        document.getElementById("sqlInput").value = PRESETS[val];
+      }
+    }
+
+    function clearEditor() {
+      document.getElementById("sqlInput").value = "";
+      document.getElementById("sqlInput").focus();
+    }
+
+    async function executeQuery(isExplain = false) {
+      let sql = document.getElementById("sqlInput").value.trim();
+      if (!sql) {
+        alert("Please enter a SQL query first.");
+        return;
+      }
+
+      if (isExplain && !sql.toUpperCase().startsWith("EXPLAIN")) {
+        sql = "EXPLAIN (ANALYZE, BUFFERS) " + sql;
+      }
+
+      const role = document.getElementById("roleSelect").value;
+      const banner = document.getElementById("feedbackBanner");
+      const textEl = document.getElementById("feedbackText");
+      const metricsEl = document.getElementById("feedbackMetrics");
+      const contentEl = document.getElementById("resultsContent");
+      const actionsEl = document.getElementById("resultsActions");
+
+      contentEl.innerHTML = `<div style="padding: 30px; text-align: center; color: #2563eb;">Running query on PostgreSQL...</div>`;
+      banner.style.display = "none";
+      actionsEl.style.display = "none";
+
+      try {
+        const res = await fetch("/api/sql/execute", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sql, role })
+        });
+        const result = await res.json();
+
+        if (!result.success) {
+          banner.className = "feedback-banner feedback-error";
+          banner.style.display = "flex";
+          textEl.innerHTML = `<strong>SQL Error:</strong> \${result.error}`;
+          metricsEl.textContent = "";
+          contentEl.innerHTML = `<div style="padding: 20px; color: #b91c1c; font-family: var(--font-mono); font-size: 13px; background: #fef2f2;">\${result.error}</div>`;
+          return;
+        }
+
+        banner.className = "feedback-banner feedback-success";
+        banner.style.display = "flex";
+        textEl.innerHTML = `✔ Query executed successfully. Showing \${result.row_count} row\${result.row_count === 1 ? '' : 's'}.`;
+        metricsEl.textContent = `Execution Time: \${result.execution_time_ms.toFixed(2)} ms`;
+
+        // Check if query is EXPLAIN
+        if (result.is_explain) {
+          renderQueryPlan(result.rows, contentEl);
+        } else {
+          currentTableData = result;
+          renderDataTable(result, contentEl);
+          actionsEl.style.display = "flex";
+        }
+
+      } catch (err) {
+        banner.className = "feedback-banner feedback-error";
+        banner.style.display = "flex";
+        textEl.textContent = "Network or Server Error: " + err.message;
+        contentEl.innerHTML = `<div style="padding: 20px; color: red;">Failed to communicate with server.</div>`;
+      }
+    }
+
+    function renderQueryPlan(rows, container) {
+      let planText = rows.map(r => r[0]).join("\n");
+      // highlight HNSW
+      planText = planText.replace(/Index Scan using idx_chunk_embeddings_hnsw_cosine/g, '<span class="query-plan-highlight">Index Scan using idx_chunk_embeddings_hnsw_cosine (HNSW GRAPH SEARCH)</span>');
+      container.innerHTML = `<div class="query-plan-box">\${planText}</div>`;
+    }
+
+    function renderDataTable(result, container) {
+      if (result.rows.length === 0) {
+        container.innerHTML = `<div style="padding: 30px; text-align: center; color: #64748b;">Query returned 0 rows.</div>`;
+        return;
+      }
+
+      let html = `<table class="data-table"><thead><tr>`;
+      result.columns.forEach(col => {
+        html += `<th>\${col}</th>`;
+      });
+      html += `</tr></thead><tbody>`;
+
+      result.rows.forEach(row => {
+        html += `<tr>`;
+        row.forEach(val => {
+          if (val === null || val === undefined) {
+            html += `<td><span class="null-badge">NULL</span></td>`;
+          } else if (typeof val === 'string' && val.startsWith('[') && val.includes('dims]')) {
+            html += `<td><span class="vector-cell" title="Native pgvector embedding">\${val}</span></td>`;
+          } else {
+            html += `<td title="\${String(val)}">\${String(val)}</td>`;
+          }
+        });
+        html += `</tr>`;
+      });
+
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+    }
+
+    function exportCSV() {
+      if (!currentTableData || !currentTableData.rows) return;
+      const headers = currentTableData.columns.join(",");
+      const lines = currentTableData.rows.map(r => r.map(c => `"\${String(c).replace(/"/g, '""')}"`).join(","));
+      const csv = [headers, ...lines].join("\n");
+      
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `query_export_\${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

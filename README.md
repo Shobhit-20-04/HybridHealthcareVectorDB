@@ -208,15 +208,40 @@ pytest tests/ -v
 
 ---
 
-### Step 5: Launch the Interactive Web Application
+### Step 5: Faculty Demonstration — Two Simple Options
 
-#### Single-Command Launcher (Recommended)
-Automatically builds the production React bundle (if needed) and serves both the REST API and the interactive frontend on port 8000:
+You can demonstrate the project to faculty using either the **phpMyAdmin-style Database Console** (simple, web-based) or directly from the **VS Code / Terminal CLI** (pure queries, zero browser needed):
+
+#### Option A: phpMyAdmin-style Database Web Console (Recommended for Visual SQL Demos)
+Run the server with a single command:
 ```powershell
 python scripts/run_app.py
 ```
-- **Web Application:** [http://127.0.0.1:8000](http://127.0.0.1:8000)
+Then open:
+- **phpMyAdmin-style DBMS Console:** [http://127.0.0.1:8000/db-admin](http://127.0.0.1:8000/db-admin)
+  - Left sidebar lists all 9 database tables (`patients`, `encounters`, `chunk_embeddings`, etc.) with live row counts.
+  - Click any table to immediately browse its rows in a clean tabular grid.
+  - Use the **"⚡ Faculty Demo Queries"** dropdown to instantly run Hybrid Search, `EXPLAIN ANALYZE` HNSW Index Scans, Exact Top-K Cosine Distance, or 4-Way Relational Joins.
+  - Or type any custom SQL query in the editor and click **▶ Run SQL (Ctrl+Enter)** or **🔍 EXPLAIN ANALYZE**.
+- **Interactive Visual Explorer (React):** [http://127.0.0.1:8000](http://127.0.0.1:8000)
 - **Interactive OpenAPI Documentation:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+#### Option B: Terminal / VS Code Interactive Query Runner (Zero Browser Required)
+If you or your faculty prefer a pure command-line/terminal DBMS demonstration without opening a browser:
+```powershell
+python scripts/faculty_query_demo.py
+```
+- Presents an interactive menu:
+  - `[1]` Hybrid Search Query (Cardiology Filter + Vector Cosine Distance `<=>`)
+  - `[2]` Query Plan: `EXPLAIN (ANALYZE, BUFFERS)` showing HNSW Index Scan
+  - `[3]` Exact Top-K Vector Search across all 6,244 chunks
+  - `[4]` 4-Way Relational Join (Patients &rarr; Encounters &rarr; Diagnoses &rarr; Documents)
+  - `[5]` Multimodal Retrieval (Medical Images & 512-dim CLIP Embeddings)
+  - `[6]` Database Storage Telemetry (Relation Sizes & Vector Index Footprint)
+  - `[7]` Row-Level Security (RLS) Isolation Test (Admin vs Physician)
+  - `[8]` Custom SQL Query Prompt (Type any SQL statement live)
+- Prints the exact raw SQL, execution time in milliseconds, formatted ASCII tables, and DBMS explanations.
+- All pre-tested academic queries are also available in [scripts/faculty_queries.sql](file:///d:/HybridHealthcareVectorDB/scripts/faculty_queries.sql) for opening directly in VS Code.
 
 #### Developer Mode (with Hot-Module Reloading)
 Run the backend and frontend in separate terminals:

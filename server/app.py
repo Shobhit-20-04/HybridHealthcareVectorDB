@@ -111,6 +111,11 @@ class RAGRequest(BaseModel):
     document_type: Optional[str] = None
     top_k: int = Field(default=3, ge=1, le=10)
 
+class SqlQueryRequest(BaseModel):
+    sql: str
+    role: Optional[str] = "postgres"
+
+
 # -----------------------------------------------------------------------------
 # Endpoints
 # -----------------------------------------------------------------------------
@@ -387,6 +392,148 @@ def get_benchmarks():
         except Exception:
             pass
     return {"message": "No benchmark report found. Run scripts/run_benchmarks.py to generate."}
+
+# -----------------------------------------------------------------------------
+# phpMyAdmin / DBMS Console Endpoints
+# -----------------------------------------------------------------------------
+@app.get("/db-admin")
+@app.get("/console")
+def get_db_admin_console():
+    """Serves phpMyAdmin-style Database Console HTML interface."""
+    admin_html = PROJECT_ROOT / "server" / "db_admin.html"
+    if admin_html.exists():
+        return FileResponse(str(admin_html), media_type="text/html")
+    raise HTTPException(status_code=404, detail="db_admin.html not found")
+
+@app.get("/api/sql/tables")
+def get_tables_list():
+    """Returns list of relational tables with row counts for DBMS console sidebar."""
+    try:
+        with get_connection() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT table_name 
+                    FROM information_schema.tables 
+                    WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+                    ORDER BY table_name;
+                """)
+                tables = [r[0] for r in cur.fetchall()]
+                
+                table_stats = []
+                for t in tables:
+                    try:
+                        cur.execute(f"SELECT COUNT(*) FROM {t};")
+                        count = cur.fetchone()[0]
+                    except Exception:
+                        count = 0
+                    table_stats.append({"name": t, "count": count})
+                    
+                return {"tables": table_stats}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/sql/execute")
+def execute_sql(req: SqlQueryRequest):
+    """Executes arbitrary or pre-loaded SQL query and returns rows, columns, timing, and query plan."""
+    import time
+    import re
+    import numpy as np
+
+    sql = req.sql.strip()
+
+    # Destructive operations check
+    forbidden_patterns = [
+        r"\bDROP\s+DATABASE\b",
+        r"\bDROP\s+SCHEMA\b",
+        r"\bDROP\s+TABLE\b",
+        r"\bTRUNCATE\b",
+        r"\bALTER\s+ROLE\b",
+        r"\bDROP\s+ROLE\b"
+    ]
+    for pat in forbidden_patterns:
+        if re.search(pat, sql, re.IGNORECASE):
+            return {
+                "success": False,
+                "error": "Destructive operations (DROP/TRUNCATE/ALTER ROLE) are disabled in the academic demo console."
+            }
+
+    is_explain = sql.upper().startswith("EXPLAIN")
+
+    try:
+        start_time = time.perf_counter()
+        
+        # Determine connection role
+        if req.role and req.role != "postgres":
+            conn_cm = get_role_connection(req.role)
+        else:
+            conn_cm = get_connection()
+
+        with conn_cm as conn:
+            with conn.cursor() as cur:
+                if req.role == "attending_physician":
+                    cur.execute("SET LOCAL app.current_department = 'Cardiology';")
+                
+                cur.execute(sql)
+                elapsed_ms = (time.perf_counter() - start_time) * 1000
+
+                if is_explain:
+                    rows = cur.fetchall()
+                    return {
+                        "success": True,
+                        "is_explain": True,
+                        "sql": sql,
+                        "columns": ["QUERY PLAN"],
+                        "rows": [[r[0]] for r in rows],
+                        "row_count": len(rows),
+                        "execution_time_ms": elapsed_ms
+                    }
+
+                if cur.description:
+                    columns = [desc[0] for desc in cur.description]
+                    raw_rows = cur.fetchall()
+                    
+                    formatted_rows = []
+                    for r in raw_rows:
+                        formatted_row = []
+                        for val in r:
+                            if val is None:
+                                formatted_row.append(None)
+                            elif isinstance(val, (list, np.ndarray)) or (hasattr(val, "__len__") and not isinstance(val, (str, bytes, dict)) and len(val) > 20):
+                                val_list = list(val)
+                                dim = len(val_list)
+                                head = ", ".join(f"{x:.4f}" for x in val_list[:3])
+                                formatted_row.append(f"[{head}, ... ({dim} dims)]")
+                            elif isinstance(val, float):
+                                formatted_row.append(round(val, 4))
+                            elif hasattr(val, "isoformat"):
+                                formatted_row.append(val.isoformat())
+                            else:
+                                formatted_row.append(str(val))
+                        formatted_rows.append(formatted_row)
+                    
+                    return {
+                        "success": True,
+                        "is_explain": False,
+                        "sql": sql,
+                        "columns": columns,
+                        "rows": formatted_rows,
+                        "row_count": len(formatted_rows),
+                        "execution_time_ms": elapsed_ms
+                    }
+                else:
+                    return {
+                        "success": True,
+                        "is_explain": False,
+                        "sql": sql,
+                        "columns": ["STATUS"],
+                        "rows": [["Query executed successfully. (0 rows returned)"]],
+                        "row_count": 0,
+                        "execution_time_ms": elapsed_ms
+                    }
+
+    except Exception as e:
+        logger.error(f"SQL execution error: {e}")
+        return {"success": False, "error": str(e)}
 
 # Mount built static frontend if available
 frontend_dist = PROJECT_ROOT / "frontend" / "dist"
