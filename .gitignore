@@ -58,6 +58,8 @@ data/processed/*
 !data/processed/.gitkeep
 data/synthetic/*
 !data/synthetic/.gitkeep
+data/real_pmc/images/*
+!data/real_pmc/images/.gitkeep
 
 # Benchmark output artifacts
 results/*

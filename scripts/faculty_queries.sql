@@ -2,7 +2,7 @@
 -- HYBRID HEALTHCARE VECTORDB — ACADEMIC FACULTY DEMONSTRATION QUERIES
 -- Project: Hybrid Relational–Vector Database Architecture for Semantic Healthcare
 -- Database: PostgreSQL 18.6 with pgvector v0.8.6
--- Dataset: 1,000 Real PubMed Central (PMC-Patients) Cases (17,076 total records)
+-- Dataset: 5,000 Real PubMed Central (PMC-Patients) Cases (84,826 total records)
 -- ============================================================================
 -- These queries demonstrate core DBMS principles:
 -- 1. Hybrid Relational-Vector Execution (Combining SQL B-Tree filters with vector distance)

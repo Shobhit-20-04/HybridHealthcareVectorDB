@@ -76,7 +76,7 @@ def load_real_pmc_cohort(mode: str = "replace", dry_run: bool = False) -> None:
 
     store = PgVectorStore(model_id="sentence-transformers/all-MiniLM-L6-v2", dimension=384)
     t_embed_start = time.time()
-    embed_stats = store.ingest_chunk_embeddings(batch_size=64)
+    embed_stats = store.ingest_chunk_embeddings(batch_size=256)
     t_embed = time.time() - t_embed_start
 
     print(f"[V] Text vector storage completed in {t_embed:.2f}s:")

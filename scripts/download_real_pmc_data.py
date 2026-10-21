@@ -154,15 +154,15 @@ def download_and_curate_pmc_cohort(target_count: int = 1000) -> Dict[str, Any]:
     print(f"[*] Target Patients    : {target_count}")
     print(f"[*] Output Directory   : {output_dir}")
 
-    # Estimate required bytes: ~2.5 KB per record * 1000 = ~12 MB, requesting 18 MB
-    estimated_bytes = max(10000000, target_count * 18000)
+    # Estimate required bytes: ~3.5 KB per record (~25 MB for 5000 patients)
+    estimated_bytes = max(10000000, target_count * 5000)
     print(f"[*] Streaming ~{estimated_bytes // (1024 * 1024)} MB range from Hugging Face...")
 
     req = urllib.request.Request(
         PMC_PATIENTS_URL,
         headers={"User-Agent": "Mozilla/5.0", "Range": f"bytes=0-{estimated_bytes}"}
     )
-    raw_bytes = urllib.request.urlopen(req, timeout=60).read()
+    raw_bytes = urllib.request.urlopen(req, timeout=180).read()
     raw_text = raw_bytes.decode("utf-8", errors="ignore")
     print(f"[V] Streamed {len(raw_bytes) // 1024} kB successfully.")
 

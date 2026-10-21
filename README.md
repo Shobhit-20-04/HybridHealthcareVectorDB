@@ -74,20 +74,20 @@ flowchart TD
 
 ## 2. Real-World Clinical Dataset & Live Scale
 
-The project is backed by **1,000 genuine real-world clinical patient cases** curated from **PubMed Central (`PMC-Patients`, CC-BY 4.0 license)**, fully normalized into Third Normal Form (3NF) without orphan foreign keys:
+The project is backed by **5,000 genuine real-world clinical patient cases** curated from **PubMed Central (`PMC-Patients`, CC-BY 4.0 license)**, fully normalized into Third Normal Form (3NF) without orphan foreign keys:
 
 | Table Relation | Rows | Physical Size | Normalization Role & Schema Description |
 |:---|---:|---:|:---|
-| `patients` | **1,000** | 296 kB | Patient demographics (Medical Record Numbers, Dates of Birth, Genders) |
-| `encounters` | **1,000** | 432 kB | Clinical visits (Cardiology, Pulmonology, Neurology, Oncology, Emergency, etc.) |
-| `diagnoses` | **1,000** | 400 kB | Clinical ICD-10 diagnostic billing codes and descriptions |
-| `clinical_documents` | **1,000** | 4,800 kB | Physician case narratives with PubMed PMIDs and SHA-256 provenance hashes |
-| `document_chunks` | **6,244** | 4,912 kB | Sliding-window token excerpts with deterministic boundaries |
-| `chunk_embeddings` | **6,244** | **13 MB** | 384-dimensional dense vectors (`vector(384)`, Cosine `<=>`) |
-| `medical_images` | **292** | 648 kB | Diagnostic radiology assets (CT, DX, US) with physical PNGs on disk |
-| `image_embeddings` | **292** | **1,824 kB** | 512-dimensional dense vision vectors (`vector(512)`, Cosine `<=>`) |
+| `patients` | **5,000** | 456 kB | Patient demographics (Medical Record Numbers, Dates of Birth, Genders) |
+| `encounters` | **5,000** | 704 kB | Clinical visits (Cardiology, Pulmonology, Neurology, Oncology, Emergency, etc.) |
+| `diagnoses` | **5,000** | 608 kB | Clinical ICD-10 diagnostic billing codes and descriptions |
+| `clinical_documents` | **5,000** | 4.8 MB | Physician case narratives with PubMed PMIDs and SHA-256 provenance hashes |
+| `document_chunks` | **30,944** | 20 MB | Sliding-window token excerpts with deterministic boundaries |
+| `chunk_embeddings` | **30,944** | **60 MB** | 384-dimensional dense vectors (`vector(384)`, Cosine `<=>`) |
+| `medical_images` | **1,469** | 664 kB | Diagnostic radiology assets (CT, DX, US) with physical PNGs on disk |
+| `image_embeddings` | **1,469** | **1.8 MB** | 512-dimensional dense vision vectors (`vector(512)`, Cosine `<=>`) |
 | `embedding_models` | **4** | 32 kB | Model registry defining dimensions, metrics, and modality constraints |
-| **Total Database Scale** | **17,076** | **~26 MB** | **100% Synchronized & Audited live in PostgreSQL 18.6** |
+| **Total Database Scale** | **84,826** | **~88 MB** | **100% Synchronized & Audited live in PostgreSQL 18.6** |
 
 ---
 

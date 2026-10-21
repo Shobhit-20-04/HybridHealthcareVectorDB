@@ -2,7 +2,7 @@
 Interactive DBMS Faculty Demonstration Console
 Project: Hybrid Relational–Vector Database Architecture for Semantic Healthcare Information Retrieval
 Database: PostgreSQL 18.6 with pgvector v0.8.6
-Dataset: 1,000 Real PubMed Central (PMC-Patients) Cases (17,076 total records)
+Dataset: 5,000 Real PubMed Central (PMC-Patients) Cases (84,826 total records)
 
 Usage:
     python scripts/faculty_query_demo.py
@@ -231,11 +231,11 @@ def main():
     while True:
         print("\n" + "=" * 80)
         print("  HYBRID HEALTHCARE VECTORDB — ACADEMIC DBMS FACULTY QUERY CONSOLE")
-        print("  PostgreSQL 18.6 | pgvector v0.8.6 | 17,076 Real PMC Records")
+        print("  PostgreSQL 18.6 | pgvector v0.8.6 | 84,826 Real PMC Records (5,000 Patients)")
         print("=" * 80)
         print("  [1] Hybrid Search Query: SQL Filtering (Cardiology) + Vector Similarity (<=>)")
         print("  [2] Execution Plan: EXPLAIN (ANALYZE, BUFFERS) showing HNSW Index Scan")
-        print("  [3] Exact Vector Top-K Nearest Neighbors (<=> on 6,244 Chunks)")
+        print("  [3] Exact Vector Top-K Nearest Neighbors (<=> on 30,944 Chunks)")
         print("  [4] Relational 4-Way Join (Patients -> Encounters -> Diagnoses -> Docs)")
         print("  [5] Multimodal Search: Medical Image Metadata & CLIP Visual Embeddings")
         print("  [6] Database Storage Telemetry: Table Sizes vs Vector Index Footprint")
