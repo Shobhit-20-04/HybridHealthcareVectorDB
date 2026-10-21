@@ -394,12 +394,13 @@ def get_benchmarks():
     return {"message": "No benchmark report found. Run scripts/run_benchmarks.py to generate."}
 
 # -----------------------------------------------------------------------------
-# phpMyAdmin / DBMS Console Endpoints
+# Database Studio Endpoints
 # -----------------------------------------------------------------------------
+@app.get("/")
 @app.get("/db-admin")
 @app.get("/console")
 def get_db_admin_console():
-    """Serves phpMyAdmin-style Database Console HTML interface."""
+    """Serves minimal Database Studio HTML interface."""
     admin_html = PROJECT_ROOT / "server" / "db_admin.html"
     if admin_html.exists():
         return FileResponse(str(admin_html), media_type="text/html")

@@ -92,7 +92,7 @@ SELECT
     e.department,
     e.admission_date,
     diag.icd10_code,
-    diag.description AS diagnosis_description,
+    diag.diagnosis_description,
     doc.document_type,
     doc.title AS article_title
 FROM patients p
@@ -114,7 +114,7 @@ SELECT
     img.synthetic_image_num,
     img.modality,
     img.body_site,
-    img.file_path,
+    img.synthetic_file_path AS file_path,
     e.department,
     ROUND((1 - (ie.embedding <=> (SELECT embedding FROM image_embeddings LIMIT 1)))::numeric, 4) AS visual_similarity
 FROM image_embeddings ie

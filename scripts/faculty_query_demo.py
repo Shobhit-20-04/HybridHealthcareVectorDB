@@ -84,7 +84,7 @@ LIMIT 5;"""
     e.department,
     TO_CHAR(e.admission_date, 'YYYY-MM-DD') AS admission,
     diag.icd10_code,
-    SUBSTRING(diag.description, 1, 30) AS diagnosis,
+    SUBSTRING(diag.diagnosis_description, 1, 30) AS diagnosis,
     doc.document_type,
     SUBSTRING(doc.title, 1, 40) || '...' AS document_title
 FROM patients p
@@ -105,7 +105,7 @@ LIMIT 8;"""
     e.department,
     ROUND((1 - (ie.embedding <=> (SELECT embedding FROM image_embeddings LIMIT 1)))::numeric, 4) AS visual_similarity,
     ROUND((ie.embedding <=> (SELECT embedding FROM image_embeddings LIMIT 1))::numeric, 4) AS visual_distance,
-    img.file_path
+    img.synthetic_file_path AS file_path
 FROM image_embeddings ie
 JOIN medical_images img ON ie.image_id = img.image_id
 JOIN encounters e ON img.encounter_id = e.encounter_id
