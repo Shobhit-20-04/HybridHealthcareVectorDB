@@ -177,6 +177,10 @@ def run_authorization_tests():
 
         with get_role_connection("attending_physician", department="Cardiology", direct_login=True) as conn:
             with conn.cursor() as cur:
+                # With RLS post-filtering on a large cohort (30k+ embeddings), an out-of-department query
+                # exhausts the default ef_search (40). Increasing ef_search ensures pgvector searches
+                # deep enough to discover within-department nearest neighbors while enforcing RLS.
+                cur.execute("SET hnsw.ef_search = 200;")
                 cur.execute("""
                     SELECT e.department, cd.title, (ce.embedding <=> %s::vector) AS dist
                     FROM chunk_embeddings ce

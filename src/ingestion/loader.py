@@ -244,12 +244,16 @@ class DatabaseLoader:
                                 INSERT INTO medical_images (
                                     image_id, patient_id, encounter_id, document_id,
                                     synthetic_image_num, modality, body_site, synthetic_file_path,
-                                    image_format, metadata, created_at
-                                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                    image_format, file_checksum_sha256, file_size_bytes, is_verified_asset,
+                                    metadata, created_at
+                                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                                 ON CONFLICT (synthetic_image_num) DO UPDATE SET
                                     modality = EXCLUDED.modality,
                                     body_site = EXCLUDED.body_site,
                                     synthetic_file_path = EXCLUDED.synthetic_file_path,
+                                    file_checksum_sha256 = EXCLUDED.file_checksum_sha256,
+                                    file_size_bytes = EXCLUDED.file_size_bytes,
+                                    is_verified_asset = EXCLUDED.is_verified_asset,
                                     metadata = EXCLUDED.metadata;
                             """
                         else:
@@ -257,20 +261,24 @@ class DatabaseLoader:
                                 INSERT INTO medical_images (
                                     image_id, patient_id, encounter_id, document_id,
                                     synthetic_image_num, modality, body_site, synthetic_file_path,
-                                    image_format, metadata, created_at
-                                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                                    image_format, file_checksum_sha256, file_size_bytes, is_verified_asset,
+                                    metadata, created_at
+                                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                                 ON CONFLICT (synthetic_image_num) DO NOTHING;
                             """
-                        image_data = [
-                            (
+                        image_data = []
+                        for img in images:
+                            meta = img.get("metadata", {})
+                            checksum = img.get("file_checksum_sha256") or meta.get("file_checksum_sha256")
+                            size = img.get("file_size_bytes") if img.get("file_size_bytes") is not None else meta.get("file_size_bytes")
+                            verified = img.get("is_verified_asset") if img.get("is_verified_asset") is not None else meta.get("is_verified_asset", False)
+                            image_data.append((
                                 img["image_id"], img["patient_id"], img["encounter_id"],
                                 img.get("document_id"), img["synthetic_image_num"],
                                 img["modality"], img["body_site"], img["synthetic_file_path"],
-                                img["image_format"], json.dumps(img.get("metadata", {})),
-                                img["created_at"]
-                            )
-                            for img in images
-                        ]
+                                img["image_format"], checksum, size, verified,
+                                json.dumps(meta), img["created_at"]
+                            ))
                         cur.executemany(image_stmt, image_data)
                         counts["medical_images"] = len(image_data)
 
