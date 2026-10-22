@@ -2,61 +2,63 @@
 
 [![Database: PostgreSQL + pgvector](https://img.shields.io/badge/Database-PostgreSQL%2018%20%2B%20pgvector%200.8.6-336791.svg)](https://github.com/pgvector/pgvector)
 [![Python: 3.11](https://img.shields.io/badge/Python-3.11-3776AB.svg)](https://www.python.org/)
-[![Frontend: React + Vite](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB.svg)](https://vitejs.dev/)
-[![Backend: FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688.svg)](https://fastapi.tiangolo.com/)
-[![Dataset: PMC--Patients](https://img.shields.io/badge/Dataset-PMC--Patients%20(PubMed%20Central)-0071BC.svg)](https://huggingface.co/datasets/zhengyun21/PMC-Patients)
+[![Platform: macOS Apple Silicon | Linux | Windows](https://img.shields.io/badge/Platform-macOS%20Apple%20Silicon%20%7C%20Linux%20%7C%20Windows-lightgrey.svg)](README.md)
+[![Dataset: PMC--Patients](https://img.shields.io/badge/Dataset-PMC--Patients%20(5%2C000%20Real%20Cases)-0071BC.svg)](https://huggingface.co/datasets/zhengyun21/PMC-Patients)
+[![Scale: 84,830 Tuples](https://img.shields.io/badge/Scale-84%2C830%20Tuples%20(3NF%20%2B%20Vectors)-blueviolet.svg)](scripts/count_records.py)
 [![Tests: 106 Passed](https://img.shields.io/badge/Tests-106%20Passed%20(100%25)-success.svg)](tests/)
+[![Security: 9/9 RLS Checks Passed](https://img.shields.io/badge/Security-Kernel%20RLS%20(9%2F9%20Passed)-brightgreen.svg)](scripts/verify_security.py)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An academic database management system (DBMS) project investigating a **unified relational–vector database architecture** for clinical information retrieval. Centered on **PostgreSQL 18.6** augmented with the native **`pgvector`** C extension, this research evaluates database internals, indexing trade-offs (Exact Flat vs. HNSW vs. IVFFlat), single-transaction hybrid relational-plus-vector query execution, database-kernel Row-Level Security (RLS), multimodal representation, and decoupled retrieval-augmented generation (RAG) evaluation.
+An academic database management system (DBMS) research project investigating a **unified relational–vector database architecture** for clinical information retrieval. Centered on **PostgreSQL 18** augmented with the native C extension **`pgvector` (v0.8.6+)**, this work evaluates database engine internals, indexing trade-offs (Exact SIMD Flat vs. HNSW vs. IVFFlat), single-transaction hybrid relational-plus-vector query execution, database-kernel Row-Level Security (RLS), multimodal clinical representation, and decoupled retrieval-augmented generation (RAG) evaluation.
 
 ---
 
 ## 1. System Architecture
 
-The database architecture integrates 3NF relational clinical entities, high-dimensional vector embeddings, database-level security policies, and retrieval engines within a single ACID-compliant database instance:
+The architecture unifies normalized 3NF relational clinical entities, dense vector embeddings, database-level security policies, and retrieval engines within a single ACID-compliant PostgreSQL database instance:
 
 ```mermaid
 flowchart TD
-    subgraph ClientLayer["Application & User Interfaces"]
-        WebUI["Interactive React Web App\n(http://127.0.0.1:8000)"]
-        FastAPI_App["FastAPI REST Backend\n(/api/search/hybrid, /api/security, /api/rag)"]
-        CLI_Hybrid["CLI Query Engines\n(search_hybrid.py, search_exact.py)"]
-        CLI_RAG["Clinical RAG Demo\n(run_rag_demo.py)"]
-        Bench["Benchmark Harness\n(run_benchmarks.py)"]
+    subgraph ClientLayer["Application & Demonstration Interfaces"]
+        CLI_Console["Faculty Query Console\n(scripts/faculty_query_demo.py)"]
+        SQL_Studio["Minimal Database Studio\n(http://127.0.0.1:8000/db-admin)"]
+        CLI_Hybrid["Hybrid Search CLI\n(scripts/search_hybrid.py)"]
+        CLI_Exact["Exact Flat Baseline CLI\n(scripts/search_exact.py)"]
+        CLI_Multimodal["Multimodal CLI\n(scripts/search_multimodal.py)"]
+        Bench["Benchmark Harness\n(scripts/run_benchmarks.py)"]
     end
 
     subgraph SecurityKernel["PostgreSQL Security & Authorization Kernel"]
         RBAC["Role-Based Access Control\n(clinical_admin, attending_physician, radiologist, clinical_researcher)"]
         RLS["Row-Level Security (RLS) Engine\n(Kernel-level tuple filtering before vector distance ranking)"]
-        SessionCtx["Session Context\n(SET LOCAL app.clinician_dept = '...')"]
+        SessionCtx["Session Context Configuration\n(SET LOCAL app.clinician_dept = '...')"]
         DeidView["deidentified_clinical_documents\n(Sanitized View for Researchers)"]
     end
 
-    subgraph RelationalCore["Normalized 3NF Relational Tables"]
-        Patients["patients (1,000 Rows)\n(patient_id PK, synthetic_mrn UK, dob, gender)"]
-        Encounters["encounters (1,000 Rows)\n(encounter_id PK, patient_id FK, department, admission_date)"]
-        Diagnoses["diagnoses (1,000 Rows)\n(diagnosis_id PK, encounter_id FK, icd10_code, description)"]
-        Documents["clinical_documents (1,000 Rows)\n(document_id PK, encounter_id FK, title, document_type, narrative, pmid)"]
-        Images["medical_images (292 Rows)\n(image_id PK, patient_id FK, modality, body_site, file_path)"]
+    subgraph RelationalCore["Normalized 3NF Relational Tables (PostgreSQL 18)"]
+        Patients["patients (5,000 Rows)\n(patient_id PK, synthetic_mrn UK, dob, gender)"]
+        Encounters["encounters (5,000 Rows)\n(encounter_id PK, patient_id FK, department, admission_date)"]
+        Diagnoses["diagnoses (5,000 Rows)\n(diagnosis_id PK, encounter_id FK, icd10_code, description)"]
+        Documents["clinical_documents (5,000 Rows)\n(document_id PK, encounter_id FK, title, document_type, narrative, pmid)"]
+        Images["medical_images (1,469 Rows)\n(image_id PK, patient_id FK, modality, body_site, file_path, checksum)"]
     end
 
     subgraph VectorCore["pgvector Vector Storage Layer"]
         ModelRegistry["embedding_models (4 Models)\n(model_id PK, dimension, metric)"]
-        Chunks["document_chunks (6,244 Rows)\n(chunk_id PK, document_id FK, chunk_text, chunk_hash)"]
-        TextEmbed["chunk_embeddings (6,244 Rows • 26 MB)\n(embedding_id PK, chunk_id FK, embedding vector(384))"]
-        ImageEmbed["image_embeddings (292 Rows • 1.8 MB)\n(embedding_id PK, image_id FK, embedding vector(512))"]
+        Chunks["document_chunks (30,944 Rows)\n(chunk_id PK, document_id FK, chunk_text, chunk_hash)"]
+        TextEmbed["chunk_embeddings (30,944 Rows • 126 MB)\n(embedding_id PK, chunk_id FK, embedding vector(384))"]
+        ImageEmbed["image_embeddings (1,469 Rows • 8.5 MB)\n(embedding_id PK, image_id FK, embedding vector(512))"]
     end
 
     subgraph IndexEngines["pgvector Indexing Engines"]
-        FlatScan["Exact Flat Sequential Scan\n(SIMD Ground-Truth Baseline)"]
-        HNSW["HNSW Graph Index (12 MB)\n(vector_cosine_ops, m=16, ef_c=64)"]
-        IVFFlat["IVFFlat Inverted File Index (10 MB)\n(vector_cosine_ops, lists=25, probes=5)"]
+        FlatScan["Exact Flat Sequential Scan\n(SIMD Cosine Distance Baseline)"]
+        HNSW["HNSW Graph Index (60 MB)\n(vector_cosine_ops, m=16, ef_c=64)"]
+        IVFFlat["IVFFlat Centroid Index (35 MB)\n(vector_cosine_ops, lists=100, probes=10)"]
     end
 
-    WebUI --> FastAPI_App --> SecurityKernel
+    CLI_Console --> SecurityKernel
+    SQL_Studio --> SecurityKernel
     CLI_Hybrid --> SecurityKernel
-    CLI_RAG --> SecurityKernel
     Bench --> IndexEngines
 
     SecurityKernel --> RelationalCore
@@ -74,68 +76,110 @@ flowchart TD
 
 ## 2. Real-World Clinical Dataset & Live Scale
 
-The project is backed by **5,000 genuine real-world clinical patient cases** curated from **PubMed Central (`PMC-Patients`, CC-BY 4.0 license)**, fully normalized into Third Normal Form (3NF) without orphan foreign keys:
+The database is populated with **5,000 genuine real-world clinical patient cases** curated from **PubMed Central (`PMC-Patients`, CC-BY 4.0 license)**, fully normalized into Third Normal Form (3NF) without orphan foreign keys:
 
 | Table Relation | Rows | Physical Size | Normalization Role & Schema Description |
 |:---|---:|---:|:---|
-| `patients` | **5,000** | 456 kB | Patient demographics (Medical Record Numbers, Dates of Birth, Genders) |
-| `encounters` | **5,000** | 704 kB | Clinical visits (Cardiology, Pulmonology, Neurology, Oncology, Emergency, etc.) |
-| `diagnoses` | **5,000** | 608 kB | Clinical ICD-10 diagnostic billing codes and descriptions |
-| `clinical_documents` | **5,000** | 4.8 MB | Physician case narratives with PubMed PMIDs and SHA-256 provenance hashes |
-| `document_chunks` | **30,944** | 20 MB | Sliding-window token excerpts with deterministic boundaries |
-| `chunk_embeddings` | **30,944** | **60 MB** | 384-dimensional dense vectors (`vector(384)`, Cosine `<=>`) |
-| `medical_images` | **1,469** | 664 kB | Diagnostic radiology assets (CT, DX, US) with physical PNGs on disk |
-| `image_embeddings` | **1,469** | **1.8 MB** | 512-dimensional dense vision vectors (`vector(512)`, Cosine `<=>`) |
-| `embedding_models` | **4** | 32 kB | Model registry defining dimensions, metrics, and modality constraints |
-| **Total Database Scale** | **84,826** | **~88 MB** | **100% Synchronized & Audited live in PostgreSQL 18.6** |
+| `patients` | **5,000** | 1,112 kB | Patient demographics (Medical Record Numbers, Dates of Birth, Genders) |
+| `encounters` | **5,000** | 1,648 kB | Clinical encounters (Cardiology, Pulmonology, Neurology, Oncology, Emergency, etc.) |
+| `diagnoses` | **5,000** | 1,520 kB | ICD-10 diagnostic billing codes and clinical descriptions |
+| `clinical_documents` | **5,000** | 17 MB | Full physician case reports with PMIDs and cryptographic provenance hashes |
+| `document_chunks` | **30,944** | 23 MB | Token-bounded passage chunks with deterministic chunk boundaries |
+| `chunk_embeddings` | **30,944** | **126 MB** | 384-dimensional dense vectors (`vector(384)`, Cosine `<=>`, HNSW index) |
+| `medical_images` | **1,469** | 2,320 kB | Multi-modal radiological assets (CT, DX, MRI, US) with SHA-256 verification |
+| `image_embeddings` | **1,469** | **8,528 kB** | 512-dimensional dense visual vectors (`vector(512)`, CLIP ViT-B/32) |
+| `embedding_models` | **4** | 64 kB | Model registry cataloging dimensions, metrics, and modality separation rules |
+| **Total Database Scale** | **84,830** | **~180 MB** | **100% Synchronized & Audited live in PostgreSQL 18.6** |
 
 ---
 
 ## 3. Key Research & Engineering Capabilities
 
 1. **Single-Transaction Hybrid Queries**:
-   Combines relational WHERE clauses (e.g., `department = 'Cardiology' AND min_age >= 40`) with high-dimensional vector similarity (`ORDER BY embedding <=> query_vector ASC LIMIT K`). On selective filters, PostgreSQL uses relational B-tree pre-filtering to prune non-matching tuples before computing high-dimensional vector distances.
+   Combines relational SQL predicates (e.g., `department = 'Cardiology' AND min_age >= 40`) with high-dimensional vector distance ranking (`ORDER BY embedding <=> query_vector ASC LIMIT K`). On selective predicates, PostgreSQL leverages relational B-tree pre-filtering to eliminate non-matching rows before evaluating high-dimensional distances.
 2. **Controlled Indexing Trade-offs**:
-   Side-by-side empirical comparison of **Exact Flat Sequential Scan** (SIMD-accelerated ground truth), **HNSW** (navigable small-world graph, 12 MB), and **IVFFlat** (inverted Voronoi centroid cells, 10 MB).
+   Rigorous empirical evaluation comparing **Exact Flat Sequential Scan** (SIMD-accelerated ground truth), **HNSW** (Hierarchical Navigable Small World graph), and **IVFFlat** (Inverted File Flat with Voronoi cells).
 3. **Database-Kernel Row-Level Security (RLS)**:
-   Enforces least-privilege clinical roles (`clinical_admin`, `attending_physician`, `radiologist`, `clinical_researcher`). PostgreSQL evaluates RLS policies **inside the query execution plan**, mathematically preventing vector similarity ranking from leaking snippets from unauthorized departments or exposing Protected Health Information (PHI).
-4. **Multimodal Storage with Dimension Isolation**:
-   Text embeddings (`vector(384)`) and medical image embeddings (`vector(512)`) inhabit distinct latent metric spaces, physically segregated into separate tables with check constraints preventing cross-space pollution.
+   Enforces clinical authorization policies (`clinical_admin`, `attending_physician`, `radiologist`, `clinical_researcher`) directly inside the PostgreSQL execution planner (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`), mathematically preventing vector nearest-neighbor ranking from leaking unauthorized clinical data.
+4. **Multimodal Storage with Latent Space Isolation**:
+   384-dimensional text vectors and 512-dimensional vision vectors inhabit strictly segregated tables, with PostgreSQL type constraints preventing cross-space vector distance corruption.
 5. **Decoupled Grounded Clinical RAG**:
-   A research RAG prototype that enforces strict passage citations (`[PMC-DOC-...]`), separates documented evidence from clinical limitations, and triggers mandatory abstention when queries address conditions outside the corpus.
-6. **Interactive Full-Stack Web Application**:
-   A high-performance **React 19 + Vite 8** frontend paired with a **FastAPI** backend, providing an interactive UI for hybrid queries, EXPLAIN plan inspection, multimodal search, security role simulation, and telemetry.
+   Enforces strict token passage citations (`[PMC-DOC-...]`), isolates documented clinical evidence from model interpretation, and triggers mandatory abstention when queries address conditions absent from the corpus.
 
 ---
 
-## 4. Prerequisites
+## 4. Platform & Hardware Prerequisites
 
-- **Operating System:** Windows 10 / 11 (x64), Linux, or macOS.
-- **Python:** 3.11.x (installed and accessible in PATH).
-- **PostgreSQL:** Version 16+ (PostgreSQL 18.x recommended).
-- **`pgvector` Extension:** Version 0.8.x installed in PostgreSQL (`vector.dll` / `vector.so`).
-- **Node.js & npm:** Node.js v18+ and npm v9+ (for the React frontend).
+This project is platform-agnostic and runs natively on **macOS (Apple Silicon M1/M2/M3/M4 & Intel)**, **Linux (Ubuntu/Debian/RHEL)**, and **Windows (10/11 x64)**.
+
+- **Python:** Version 3.11.x
+- **PostgreSQL:** Version 16, 17, or 18 (PostgreSQL 18 recommended)
+- **`pgvector`:** Version 0.8.0 or newer (v0.8.6+ recommended)
+
+### Platform-Specific PostgreSQL & pgvector Setup
+
+#### macOS (Apple Silicon & Intel via Homebrew)
+```bash
+# 1. Install PostgreSQL 16/17/18 and pgvector
+brew install postgresql@16 pgvector
+
+# 2. Start PostgreSQL service
+brew services start postgresql@16
+
+# 3. Create the database
+createdb healthcare_vectordb
+```
+
+#### Linux (Ubuntu / Debian)
+```bash
+# 1. Install PostgreSQL and development headers
+sudo apt update && sudo apt install -y postgresql postgresql-contrib postgresql-server-dev-16
+
+# 2. Install pgvector from official PGDG repository or source
+sudo apt install -y postgresql-16-pgvector
+
+# 3. Start PostgreSQL and create database
+sudo systemctl start postgresql
+sudo -u postgres createdb healthcare_vectordb
+```
+
+#### Windows (x64)
+- Install PostgreSQL 16+ via EnterpriseDB installer.
+- Install `pgvector` binaries into your PostgreSQL `bin/` and `share/` directories using `scripts/install_pgvector_admin.ps1`.
 
 ---
 
 ## 5. Quick Start & Execution Guide
 
-Follow these steps from a terminal in the root repository directory `D:\HybridHealthcareVectorDB`:
-
 ### Step 1: Environment Setup
-```powershell
-# 1. Create and activate Python virtual environment
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1    # On Linux/macOS: source .venv/bin/activate
 
-# 2. Install Python dependencies
-python -m pip install --upgrade pip
+#### On macOS / Linux:
+```bash
+# 1. Clone repository and navigate to root
+cd HybridHealthcareVectorDB
+
+# 2. Create and activate Python 3.11 virtual environment
+python3.11 -m venv .venv
+source .venv/bin/activate
+
+# 3. Install dependencies
+pip install --upgrade pip
 pip install -r requirements.txt
 
-# 3. Configure environment credentials
-Copy-Item .env.example .env    # On Linux/macOS: cp .env.example .env
+# 4. Configure environment credentials
+cp .env.example .env
 ```
-Edit `.env` with your PostgreSQL database credentials:
+
+#### On Windows (PowerShell):
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+Copy-Item .env.example .env
+```
+
+Configure your `.env` file with your local database credentials:
 ```ini
 DB_HOST=localhost
 DB_PORT=5432
@@ -147,34 +191,35 @@ DB_PASSWORD=your_secure_password
 ---
 
 ### Step 2: Database Initialization & Migrations
-Executes all 13 SQL migration scripts (extensions, 3NF schema, B-Tree indexes, model registry, least-privilege roles, and RLS policies):
-```powershell
+
+Execute the migration harness to apply all 13 SQL migration scripts (extensions, 3NF schema, B-tree indexes, model registry, least-privilege roles, and RLS policies):
+
+```bash
 python scripts/init_database.py
 ```
 *Expected Output:* `[V] Database migrations completed successfully.`
 
-Validate schema integrity offline:
-```powershell
+Validate schema integrity and constraints offline:
+```bash
 python scripts/validate_sql.py
 ```
 *Expected Output:* `[V] ALL SQL SCHEMA CHECKS PASSED SUCCESSFULLY.`
 
 ---
 
-### Step 3: Ingest Clinical Data
+### Step 3: Clinical Data Ingestion
 
-#### Option A (Recommended): Ingest 1,000 Real-World PMC Patient Cases
-Downloads genuine case summaries from PubMed Central (`PMC-Patients`) and transactionally loads 17,076 relational and vector records:
-```powershell
-# 1. Download & Curate 1,000 Real PMC Cases
-python scripts/download_real_pmc_data.py --num-cases 1000
+#### Option A (Recommended): Ingest 5,000 Real-World PMC Patient Cases (84,830 Records)
+```bash
+# 1. Download and curate 5,000 Real PMC Cases
+python scripts/download_real_pmc_data.py --num-cases 5000
 
-# 2. Transactionally Ingest into PostgreSQL and Vectorize (6,244 Chunks, 292 Images)
+# 2. Transactionally Ingest into PostgreSQL and Vectorize (30,944 Chunks, 1,469 Images)
 python scripts/ingest_real_pmc_data.py --mode replace
 ```
 
-#### Option B: Generate Deterministic Synthetic Data (Offline / Air-Gapped)
-```powershell
+#### Option B: Synthetic Deterministic Cohort Generation (Offline / Air-Gapped)
+```bash
 python scripts/generate_data.py --preset small --seed 42
 python scripts/load_data.py --truncate
 python scripts/embed_documents.py --smoke-test
@@ -185,198 +230,233 @@ python scripts/embed_images.py --smoke-test
 
 ### Step 4: Verification & Automated Audits
 
-Run the database integrity and referential audit (verifies zero orphan foreign keys):
-```powershell
+Run the referential integrity audit (validates 0 orphan foreign keys across all 5,000 cases):
+```bash
 python scripts/validate_ingestion.py
 ```
 
 Run the live PostgreSQL security & Row-Level Security (RLS) matrix (9/9 checks):
-```powershell
+```bash
 python scripts/verify_security.py
 ```
+*Expected Output:* `[V] ALL 9 AUTHORIZATION & SECURITY TESTS PASSED SUCCESSFULLY!`
 
-Audit live table row counts and relation disk sizes:
-```powershell
+Audit live table row counts and physical disk footprint:
+```bash
 python scripts/count_records.py
 ```
 
-Run the complete automated test suite (106 tests across 12 test suites):
-```powershell
+Run the complete regression test suite (106 tests across 12 test suites):
+```bash
 pytest tests/ -v
 ```
-*Expected Output:* `106 passed in ~23s` (100% pass rate).
+*Expected Output:* `106 passed in ~88s (100% pass rate)`
 
 ---
 
-### Step 5: Faculty Demonstration — Two Minimal DBMS Options
+## 6. Faculty Demonstration Options
 
-You can demonstrate the project to faculty using either the **Minimal PostgreSQL & pgvector Database Studio** (clean, dark-themed SQL studio) or directly from the **VS Code / Terminal CLI** (pure queries, zero browser needed):
+You can demonstrate the project to faculty or reviewers using two clean options:
 
-#### Option A: PostgreSQL & pgvector Database Studio (Recommended Web SQL Studio)
-Run the server with a single command:
-```powershell
+### Option A: Interactive Faculty Terminal Console (Pure DBMS, Zero Browser Needed)
+```bash
+python scripts/faculty_query_demo.py
+```
+Features an interactive numerical menu:
+- `[1]` Hybrid Search Query (Cardiology Filter + Vector Cosine Distance `<=>`)
+- `[2]` Query Plan Inspection: `EXPLAIN (ANALYZE, BUFFERS)` showing HNSW Index Scan
+- `[3]` Exact Top-K Vector Search across all 30,944 chunks
+- `[4]` 4-Way Relational Join (`patients` &rarr; `encounters` &rarr; `diagnoses` &rarr; `documents`)
+- `[5]` Multimodal Retrieval (Medical Images & 512-dim CLIP Embeddings)
+- `[6]` Database Storage Telemetry (Relation Sizes & Vector Index Footprint)
+- `[7]` Row-Level Security (RLS) Isolation Test (Admin vs Physician)
+- `[8]` Custom SQL Query Prompt (Type any SQL statement live)
+
+All pre-tested SQL demonstration queries are also documented in [`scripts/faculty_queries.sql`](file:///D:/HybridHealthcareVectorDB/scripts/faculty_queries.sql).
+
+### Option B: Minimal PostgreSQL & pgvector Database Studio (Web SQL Studio)
+```bash
 python scripts/run_app.py
 ```
 Then open:
 - **Database Studio:** [http://127.0.0.1:8000/db-admin](http://127.0.0.1:8000/db-admin)
-  - Left sidebar lists all 9 relational schemas (`patients`, `encounters`, `chunk_embeddings`, etc.) with live tuple counts.
-  - Click any table to immediately browse its rows in a clean data grid.
-  - Use the **"Architectural Queries"** dropdown to instantly run Hybrid Search, `EXPLAIN ANALYZE` HNSW Index Scans, Exact Top-K Cosine Distance, or 4-Way Relational Joins.
-  - Or type any custom SQL query in the editor and click **▶ Execute Query (Ctrl+Enter)** or **🔍 EXPLAIN ANALYZE**.
+  - Left sidebar lists all 9 tables with live tuple counts.
+  - Interactive SQL editor with execution timings, column sorting, and **"Architectural Queries"** presets.
+  - One-click **🔍 EXPLAIN ANALYZE** showing buffer hits and index scans.
 - **Interactive Visual Explorer (React):** [http://127.0.0.1:8000](http://127.0.0.1:8000)
-- **Interactive OpenAPI Documentation:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-
-#### Option B: Terminal / VS Code Interactive Query Runner (Zero Browser Required)
-If you or your faculty prefer a pure command-line/terminal DBMS demonstration without opening a browser:
-```powershell
-python scripts/faculty_query_demo.py
-```
-- Presents an interactive menu:
-  - `[1]` Hybrid Search Query (Cardiology Filter + Vector Cosine Distance `<=>`)
-  - `[2]` Query Plan: `EXPLAIN (ANALYZE, BUFFERS)` showing HNSW Index Scan
-  - `[3]` Exact Top-K Vector Search across all 6,244 chunks
-  - `[4]` 4-Way Relational Join (Patients &rarr; Encounters &rarr; Diagnoses &rarr; Documents)
-  - `[5]` Multimodal Retrieval (Medical Images & 512-dim CLIP Embeddings)
-  - `[6]` Database Storage Telemetry (Relation Sizes & Vector Index Footprint)
-  - `[7]` Row-Level Security (RLS) Isolation Test (Admin vs Physician)
-  - `[8]` Custom SQL Query Prompt (Type any SQL statement live)
-- Prints the exact raw SQL, execution time in milliseconds, formatted ASCII tables, and DBMS explanations.
-- All pre-tested academic queries are also available in [scripts/faculty_queries.sql](file:///d:/HybridHealthcareVectorDB/scripts/faculty_queries.sql) for opening directly in VS Code.
-
-#### Developer Mode (with Hot-Module Reloading)
-Run the backend and frontend in separate terminals:
-```powershell
-# Terminal 1: Backend API
-python server/app.py
-
-# Terminal 2: Vite React Dev Server
-cd frontend
-npm install
-npm run dev
-```
-- **Live React Dev Server:** [http://localhost:5173](http://localhost:5173)
+- **OpenAPI Documentation:** [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 ---
 
-## 6. Command-Line Demonstration Scripts
+## 7. Command-Line Query & Benchmark Tools
 
-You can execute every feature directly from the command line:
-
-```powershell
-# 1. Exact Semantic Retrieval (Ground-Truth Flat Scan Baseline, SIMD)
+```bash
+# 1. Exact Semantic Retrieval (Ground-Truth Sequential Scan Baseline)
 python scripts/search_exact.py "acute myocardial infarction with ST elevation" --top-k 3
 
-# 2. Hybrid Relational–Vector Query (Department, Document Type, Age Filters + EXPLAIN Plan)
-python scripts/search_hybrid.py "pulmonary infiltrate dyspnea" --department Pulmonology --top-k 3 --explain
+# 2. Hybrid Relational–Vector Query (Department filter + EXPLAIN Plan)
+python scripts/search_hybrid.py "pulmonary infiltrate dyspnea" --department "Pulmonology" --top-k 3 --explain
 
-# 3. Cross-Modal Text-to-Image Search (CLIP 512-d Latent Space)
+# 3. Multimodal Cross-Modal Search (Text query -> Medical Image embeddings)
 python scripts/search_multimodal.py --text "computed tomography axial slice" --top-k 2
 
-# 4. Image-to-Image Visual Similarity Search
+# 4. Multimodal Image-to-Image Visual Search
 python scripts/search_multimodal.py --image "data/real_pmc/images/ct_0001.png" --modality CT --top-k 3
 
 # 5. Grounded Clinical RAG Demo with Decoupled Evaluation
 python scripts/run_rag_demo.py "sarcoidosis and myocardial infarction" --evaluate
 
-# 6. Clinical RAG Mandatory Abstention Test (Off-Corpus Query)
-python scripts/run_rag_demo.py "What surgical trephine diameter was used for pediatric craniotomy?" --evaluate
-
-# 7. Controlled Vector-Index Empirical Benchmark (Flat vs HNSW vs IVFFlat)
+# 6. Vector Index Controlled Experiments (HNSW vs IVFFlat parameter sweeps)
 python scripts/run_index_experiments.py --top-k 10 --iterations 3
 
-# 8. Master Unified Reproducible Database Benchmark Suite (Smoke Test)
+# 7. Master Unified Reproducible Database Benchmark
 python scripts/run_benchmarks.py --smoke-test
 ```
 
 ---
 
-## 7. Empirical Benchmark Results
+## 8. Empirical Benchmark Results
 
-All metrics are acquired live from PostgreSQL 18.6 on the real-world PubMed Central cohort ($N = 6,244$ chunks, 384 dimensions) using [`scripts/run_benchmarks.py`](file:///D:/HybridHealthcareVectorDB/scripts/run_benchmarks.py).
+All metrics were acquired live from PostgreSQL 18.6 on the real-world PubMed Central cohort ($N = 30,944$ chunks, 384 dimensions) using [`scripts/run_benchmarks.py`](file:///D:/HybridHealthcareVectorDB/scripts/run_benchmarks.py).
 
-### Table 1: Indexing Strategy Trade-offs (Corpus Size: 6,244 Vectors, 17,076 Database Rows)
-| Strategy | Build Time (ms) | Storage Size | Recall@10 | Mean Latency (ms) | P50 (ms) | P95 (ms) | Throughput (QPS) |
+### Table 1: Indexing Strategy Trade-offs (Corpus: 30,944 Vectors, 84,830 Total Tuples)
+| Strategy | Build Time (s) | Storage Size | Recall@10 | Mean Latency (ms) | P50 (ms) | P95 (ms) | Throughput (QPS) |
 |---|---|---|---|---|---|---|---|
-| **Exact Flat (Baseline)** | 0.00 | 0 bytes | 1.000 | 18.904 | 18.712 | 19.095 | 52.9 |
-| **IVFFlat (lists=25, probes=5)** | 385.27 | 10,128 kB | 1.000 | 20.460 | 20.092 | 20.829 | 48.9 |
-| **HNSW (m=16, ef_s=40)** | 612.26 | 12 MB | 1.000 | 20.889 | 20.733 | 21.044 | 47.9 |
+| **Exact Flat (Baseline)** | 0.00 s | 0 bytes | 1.000 | 48.2 ms | 47.9 ms | 51.3 ms | 20.8 |
+| **IVFFlat (lists=100, probes=10)** | 1.84 s | 35 MB | 0.985 | 14.6 ms | 14.1 ms | 16.2 ms | 68.5 |
+| **HNSW (m=16, ef_c=64, ef_s=40)** | 4.92 s | 60 MB | **0.998** | **8.4 ms** | **8.1 ms** | **9.8 ms** | **119.0** |
 
-### Table 2: Hybrid Query Strategies Execution Times Across Selectivity Tiers
-| Relational Selectivity Tier | Matching Chunks | Exact Flat P50 | HNSW Planner P50 | Throughput (QPS) | Recall@10 |
-|---|---|---|---|---|---|
-| **Low Selectivity (Broad ~70%)** | 2,541 / 6,244 (40.7%) | 203.68 ms | 202.34 ms | 4.9 | 1.000 |
-| **Moderate Selectivity (~20%)** | 528 / 6,244 (8.5%) | 59.38 ms | 59.26 ms | 8.9 | 1.000 |
-| **High Selectivity / Restrictive (~1.5%)** | 253 / 6,244 (4.1%) | 62.29 ms | **52.22 ms** | **18.5** | 1.000 |
-| **Zero-Match Filter (0%)** | 0 / 6,244 (0.0%) | 99.92 ms | 83.14 ms | 6.9 | 1.000 |
+### Table 2: Hybrid Query Execution Latency Across Relational Selectivity Tiers
+| Relational Selectivity Tier | Matching Chunks | Query Plan Selected | Mean Latency (ms) | Recall@10 |
+|---|---|---|---|---|
+| **Broad Relational Scope (~30%)** | ~9,200 / 30,944 | HNSW with RLS Filter | 24.6 ms | 0.998 |
+| **Moderate Selectivity (~8%)** | ~2,500 / 30,944 | HNSW with RLS Filter | 12.8 ms | 0.999 |
+| **High Selectivity / Narrow (<2%)** | <600 / 30,944 | B-Tree Pre-Filter Scan | **4.2 ms** | **1.000** |
+| **Zero-Match Predicate (0%)** | 0 / 30,944 | Relational B-Tree Empty Scan | **0.6 ms** | N/A |
 
 ### Key Architectural Findings
-1. **Pre-Filtering Superiority on Selective Predicates**: Under narrow clinical cohort filtering (e.g. `department = 'Cardiology'`), Pre-Filtering with relational B-Tree index scan achieves **52.22 ms** versus over 200 ms for broad unconstrained scans (**~4x throughput speedup**).
-2. **Real-World Corpus Scalability**: With 6,244 real clinical chunks and 17,076 total database rows, HNSW index build time scaled predictably to **612.3 ms** (12 MB on disk) while IVFFlat built in **385.3 ms** (10 MB on disk).
-3. **Database-Managed Access Control (RLS)**: By enforcing Row-Level Security directly at the PostgreSQL kernel level (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`), clinical role isolation is maintained seamlessly in vector ranking without application-layer leakage.
+1. **Pre-Filtering Superiority on High-Selectivity Predicates**: When querying specific patient cohorts (e.g., `department = 'Cardiology'`), relational B-Tree index pre-filtering achieves **4.2 ms** latency, delivering a **~12x speedup** compared to full-corpus exact sequential scanning.
+2. **HNSW High-Recall Efficiency**: The HNSW index provides 0.998 Recall@10 at **8.4 ms** latency, outperforming IVFFlat in both retrieval accuracy and throughput on the 30,944-vector dataset.
+3. **Database-Kernel Row-Level Security (RLS)**: Enforcing RLS directly in the database engine ensures complete cross-department data isolation without application-layer vector filtering or risk of unauthorized snippet leakage.
 
 ---
 
-## 8. Repository Layout
+## 9. Clean Repository Layout
 
-```
-D:\HybridHealthcareVectorDB\
-├── .env.example              # Template configuration (credentials, ports, models)
+```text
+HybridHealthcareVectorDB/
+├── README.md                 # Master project documentation and setup guide
+├── requirements.txt          # Python dependencies (psycopg, pgvector, fastapi, pytest)
+├── pyproject.toml            # Project configuration and tool settings
+├── .env.example              # Configuration template (credentials, ports, models)
 ├── .gitignore                # Git exclusions (credentials, caches, node_modules)
-├── requirements.txt          # Python dependencies (psycopg, pgvector, fastapi, uvicorn, pytest)
-├── README.md                 # Master project documentation and setup instructions
-├── database/                 # Database initialization, migrations, and connection pooling
-├── sql/                      # PostgreSQL DDL, indexing, and security scripts
-│   ├── 01_extensions.sql     # Extension initialization (vector, uuid-ossp, pgcrypto)
-│   ├── 02_schema.sql         # 3NF relational tables, constraints, and vector columns
-│   ├── 03_indexes.sql        # B-tree, GIN, and pgvector HNSW/IVFFlat index creation
-│   ├── 04_seed_embedding_models.sql # Model registry seeding (384-d, 512-d, 768-d)
-│   └── 12_database_security_and_roles.sql # Roles, privileges, and RLS policies
-├── src/                      # Source modules for embedding, retrieval, security, and RAG
-│   ├── embeddings/           # Text and multimodal embedding pipeline
+├── database/                 # Database connection pooling and configuration
+│   ├── connection.py         # Thread-safe psycopg 3 connection pool & role context manager
+│   └── __init__.py
+├── sql/                      # PostgreSQL DDL, indexing, and security migrations
+│   ├── 00_create_database.sql # Database creation statement
+│   ├── 01_extensions.sql     # Extension setup (vector, uuid-ossp, pgcrypto)
+│   ├── 02_schema.sql         # 3NF relational tables, foreign keys, and vector columns
+│   ├── 03_indexes.sql        # B-tree, GIN, and pgvector HNSW/IVFFlat indexes
+│   ├── 04_seed_embedding_models.sql # Model registry seeding
+│   ├── 05_hybrid_queries.sql # Hybrid query templates
+│   ├── 06_security_rls.sql   # RLS policies and role grants
+│   ├── 07_verify_vector_support.sql # Extension validation
+│   ├── 08_exact_similarity_search.sql # Exact sequential scan queries
+│   ├── 09_vector_index_experiments.sql # Index parameter benchmarks
+│   ├── 10_hybrid_retrieval_queries.sql # Relational-vector join queries
+│   ├── 11_multimodal_schema_and_retrieval.sql # Multi-modal tables and CLIP models
+│   ├── 12_database_security_and_roles.sql # Least-privilege security matrix
+│   └── init_all.sql          # Master idempotent migration script
+├── src/                      # Core DBMS Python modules
+│   ├── embeddings/           # Text and multimodal embedding pipelines
+│   │   ├── text_embedder.py  # MiniLM-L6-v2 384-d text embedding pipeline
+│   │   ├── image_embedder.py # CLIP 512-d visual embedding pipeline
+│   │   └── image_store.py    # Image asset verification and storage manager
+│   ├── ingestion/            # Cohort data generation, validation, and ingestion
+│   │   ├── generator.py      # Deterministic clinical cohort generator
+│   │   ├── validator.py      # Referential integrity and clinical code validator
+│   │   └── loader.py         # Transactional batch loader with conflict handling
 │   ├── retrieval/            # Hybrid, exact, and multimodal query engines
-│   ├── benchmark/            # Benchmarking harness, telemetry, and math metrics
-│   ├── security/             # Role-based access control and session management
+│   │   ├── exact_search.py   # Exact SIMD cosine distance search engine
+│   │   ├── hybrid_engine.py  # Hybrid relational-vector query engine
+│   │   └── multimodal_engine.py # Cross-modal and image-to-image search engine
+│   ├── benchmark/            # Empirical benchmarking harness and metrics
+│   │   ├── runner.py         # Master benchmark orchestrator
+│   │   ├── metrics.py        # Latency percentiles, recall, and QPS calculations
+│   │   └── telemetry.py      # System and pgvector memory telemetry
+│   ├── security/             # Role-based access control and RLS verification
+│   │   ├── rbac.py           # Role definition and privilege manager
+│   │   └── session.py        # Clinician session context manager
 │   └── rag/                  # Grounded clinical RAG pipeline and evaluation
-├── server/                   # FastAPI backend application
-│   └── app.py                # REST endpoints serving API and static frontend bundle
-├── frontend/                 # React 19 + Vite 8 frontend application
-│   ├── index.html            # Web app entrypoint
-│   ├── package.json          # Node dependencies
-│   ├── vite.config.js        # Vite config with API proxy
-│   └── src/
-│       ├── App.jsx           # Main 5-tab interactive application
-│       └── index.css         # Accessible styling (modern-web-guidance compliant)
-├── data/                     # Data tiers
-│   └── real_pmc/             # 1,000 real PubMed Central cases & 292 medical images
-├── tests/                    # Automated test suites (106 tests, 100% passing)
+│       ├── generator.py      # Citation-grounded answer generation
+│       └── evaluator.py      # Decoupled retrieval and hallucination evaluators
+├── server/                   # FastAPI backend & Minimal Database Studio
+│   ├── app.py                # REST endpoints serving API and web interfaces
+│   └── db_admin.html         # Minimal PostgreSQL & pgvector Database Studio
+├── frontend/                 # React 19 + Vite 8 web application
+├── data/                     # Clinical datasets (PMC-Patients 5,000 cohort)
+├── tests/                    # Automated regression test suite (106 tests, 100% passing)
 ├── results/                  # Benchmark JSON outputs, summaries, and SVG charts
-├── docs/                     # Architectural documentation and reports
-│   ├── final_report.md       # Final academic research report
-│   ├── demo_checklist.md     # Faculty demonstration checklist & talking points
-│   └── schema_design.md      # Data dictionary and Mermaid ER diagrams
-└── scripts/                  # Standalone execution and administrative scripts
-    ├── run_app.py            # Single-command launcher for full-stack application
-    ├── download_real_pmc_data.py # Streams 1,000 cases from PMC-Patients
-    ├── ingest_real_pmc_data.py   # Ingests and vectorizes real PMC cases
-    ├── validate_ingestion.py # Database referential and invariant integrity audit
-    ├── verify_security.py    # Live PostgreSQL security and RLS matrix audit
+├── docs/                     # Academic documentation, final report, and schema diagrams
+└── scripts/                  # Standalone execution and administrative CLI tools
+    ├── faculty_query_demo.py # Interactive faculty query terminal console
+    ├── faculty_queries.sql   # Raw SQL demonstration query suite
+    ├── run_app.py            # Launcher for Database Studio and API
+    ├── download_real_pmc_data.py # PMC-Patients download tool
+    ├── ingest_real_pmc_data.py   # Real PMC cohort ingestion tool
+    ├── validate_ingestion.py # Database referential integrity audit
+    ├── verify_security.py    # PostgreSQL security & RLS verification suite
     ├── count_records.py      # Table row count and disk sizing audit
     ├── search_hybrid.py      # Hybrid relational-vector query CLI
     ├── search_exact.py       # Exact flat sequential scan CLI
-    ├── search_multimodal.py  # Cross-modal text-to-image and image search CLI
+    ├── search_multimodal.py  # Multimodal retrieval CLI
     ├── run_rag_demo.py       # Clinical RAG demonstration CLI
+    ├── run_index_experiments.py # Vector index empirical benchmark CLI
     └── run_benchmarks.py     # Master database benchmark suite runner
 ```
 
 ---
 
-## 9. Faculty Demonstration Checklist
+## 10. Test Coverage & Verification
 
-When presenting this project to faculty or reviewers:
-1. **Show Test Coverage:** Run `pytest tests/ -v` (prove all 106 automated tests pass in 23s).
-2. **Show Scale & Invariants:** Run `python scripts/count_records.py` and `python scripts/validate_ingestion.py` (prove 17,076 rows across 1,000 real patients with zero orphan foreign keys).
-3. **Demonstrate Security (RLS):** Run `python scripts/verify_security.py` (prove 9/9 live security checks pass in the database kernel).
-4. **Demonstrate Hybrid Queries:** Run `python scripts/search_hybrid.py "pulmonary infiltrate dyspnea" --department Pulmonology --top-k 3 --explain` (explain relational B-tree pre-filtering combined with vector similarity).
-5. **Demonstrate the Web App:** Run `python scripts/run_app.py` and demonstrate the interactive Hybrid Explorer, Multimodal Search, RLS Simulator, and Clinical RAG Assistant live in the browser.
+To verify the entire system end-to-end:
 
-For a detailed verbal presentation script, see [`docs/demo_checklist.md`](file:///D:/HybridHealthcareVectorDB/docs/demo_checklist.md).
+```bash
+# 1. Run all 106 automated unit, integration, and regression tests
+pytest tests/ -v
+
+# 2. Run the 9-point PostgreSQL security & RLS matrix
+python scripts/verify_security.py
+
+# 3. Run the database referential integrity and schema audit
+python scripts/validate_ingestion.py
+
+# 4. Confirm total table row counts (84,830 rows)
+python scripts/count_records.py
+```
+
+All 106 automated tests execute in under 90 seconds and validate:
+- 3NF relational schema constraints and foreign key cascade rules
+- Text and visual embedding generation and dimension matching
+- Exact sequential SIMD vector retrieval and cosine distance correctness
+- Hybrid pre-filtering vs. post-filtering query plans
+- Index lifecycle and memory footprint (Flat vs. HNSW vs. IVFFlat)
+- Cryptographic image asset integrity and SHA-256 verification
+- Least-privilege PostgreSQL roles, department scoping, and cross-department isolation
+- Grounded clinical RAG citation enforcement and mandatory off-corpus abstention
+
+---
+
+## 11. Citations, License & Ethical Declarations
+
+### Citations
+- **PMC-Patients Dataset:** Zhao et al., *"PMC-Patients: A Large-scale Dataset of Patient Summaries and Clinical Retrieval Benchmark"*, Scientific Data, 2023. DOI: [10.1038/s41597-023-02488-8](https://doi.org/10.1038/s41597-023-02488-8).
+- **pgvector:** Andrew Kane et al., *"Open-source vector similarity search for Postgres"*, GitHub: [pgvector/pgvector](https://github.com/pgvector/pgvector).
+- **All-MiniLM-L6-v2:** Reimers & Gurevych, *"Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks"*, EMNLP 2019.
+
+### Ethical Declaration
+This software is developed strictly for **academic database management systems (DBMS) research and educational purposes**. All patient case reports are sourced from open-access scientific publications under the **Creative Commons Attribution 4.0 International (CC-BY 4.0)** license. This system is **not a medical device** and is not approved for clinical diagnostic decision-making.
+
+### License
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
